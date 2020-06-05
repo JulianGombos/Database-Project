@@ -30,7 +30,6 @@ public class PeopleDAO {
 	private PreparedStatement preparedStatement = null;
 	private ResultSet resultSet = null;
 	
-	
 	public PeopleDAO() {
 
     }
@@ -47,7 +46,7 @@ public class PeopleDAO {
             }
             connect = (Connection) DriverManager
   			      .getConnection("jdbc:mysql://127.0.0.1:3306/testdb?"
-  			          + "user=root&password=Pokemonmaster98");
+  			          + "john=root&password=Pass1234");
             System.out.println(connect);
         }
     }
