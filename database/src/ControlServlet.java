@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
  * requests from the user.
  * @author www.codejava.net
  */
+// hello 
 public class ControlServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private PeopleDAO peopleDAO;
