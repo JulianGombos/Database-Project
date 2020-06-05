@@ -111,7 +111,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
- 
 
 public class ControlServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
