@@ -1,0 +1,43 @@
+
+public class User {
+	
+	protected String username;
+	protected String password;
+	protected String firstName;
+	protected String lastName;
+	protected int age;
+
+	public User() {
+		this.username = "null";
+		this.password = "null";
+	}
+	
+	public User(String username, String password) {
+		this.username = username;
+		this.password = password;
+	}
+	
+	public User(String username, String password, String firstName, String lastName, int age) {
+		this.username = username;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.age = age;
+	}
+	
+	String getUsername() {
+		return this.username;
+	}
+	
+	void setUsername(String username) {
+		this.username = username;
+	}
+	
+	String getPassword() {
+		return this.password;
+	}
+	
+	void setPassword(String password) {
+		this.password = password;
+	}
+}

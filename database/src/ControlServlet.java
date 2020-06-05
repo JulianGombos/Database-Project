@@ -15,13 +15,102 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
+
+public class ControlServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private PeopleDAO peopleDAO;
  
-/**
- * ControllerServlet.java
- * This servlet acts as a page controller for the application, handling all
- * requests from the user.
- * @author www.codejava.net
- */
+    public void init() {
+        peopleDAO = new PeopleDAO(); 
+    }
+ 
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
+    }
+ 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getServletPath();
+        System.out.println(action);
+        try {
+            switch (action) {
+            case "/login":
+            	userLogin(request, response);
+                break;
+            case "/insert":
+            	addUser(request, response);
+            	break;
+            default:          	
+            	userLogin(request, response);           	
+                break;
+            }
+        } catch (SQLException ex) {
+            throw new ServletException(ex);
+        }
+    }
+    
+    private void userLogin(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        User loginInfo = new User(username, password);
+        if(peopleDAO.checkLogin(loginInfo) == true) {
+        	System.out.println("Im in Control true");
+        	response.sendRedirect("GoodLogin.jsp");
+        }else {
+        	System.out.println("Im in Control false");
+        	System.out.println("Incorrect login info");
+        	response.sendRedirect("LoginForm.jsp");
+        }
+    }
+    
+    private void addUser(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	String username = request.getParameter("username");
+    	String password = request.getParameter("password");
+    	String firstName = request.getParameter("firstname");
+    	String lastName = request.getParameter("lastname");
+    	int age = Integer.parseInt(request.getParameter("age"));
+    	User newUser = new User(username, password, firstName, lastName, age);
+    	if(peopleDAO.addNewUser(newUser)) {
+    		response.sendRedirect("LoginForm.jsp");
+    	}else {
+    		System.out.println("Error occured while adding user");
+    		response.sendRedirect("AddUser.jsp");
+    	}
+    }
+    
+    /*private void insertPeople(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException {
+        String name = request.getParameter("name");
+        String address = request.getParameter("address");
+        String status = request.getParameter("status");
+        People newPeople = new People(name, address, status);
+        peopleDAO.insert(newPeople);
+        response.sendRedirect("list");  // The sendRedirect() method works at client side and sends a new request
+    }*/
+}
+
+    
+/*
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.List;
+ 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
 
 public class ControlServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -129,3 +218,4 @@ public class ControlServlet extends HttpServlet {
     }
 
 }
+*/
