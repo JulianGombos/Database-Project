@@ -9,10 +9,10 @@
 </head>
 
 <body>
-	<center>
+	<div align="center">
 		<h1>User Login</h1>
         <a href="AddUser.jsp">Create User</a>
-	</center>
+	</div>
 	<div align="center">
 		<form action="login" method="post">
 	        <table>
@@ -28,12 +28,8 @@
 		        	<input type="text" name="password" size="45" value="<c:out value='${user.password}' />" required/>
 		        	</td>
 	        	</tr>
-	        	<th></th>
-	        	<td>
-                    <input type="submit" value="Login" />
-                    <!--<a href="insert">Create New User</a>  -->
-                </td>
 	        </table>
+	        <input type="submit" value="Login" />
         </form>
 	</div>
 </body>

@@ -37,24 +37,21 @@
 	</div>
 	<div style="display:${isRoot ? 'block' : 'none'}" align="center">
 		<h2>Admin Functions</h2>
-			<table>
-				<tr>
-					<td>
-						<button onclick="document.location = 'DropTables.jsp'">Initialize Database</button>
-					</td>
-					<td>
-						<form action="list" method="get">
-							<button type="submit">View Registered Users</button>
-						</form>
-					</td>
-					<td><button>Insert A User</button></td>
-					<td><button>Delete Registered User</button></td>
-				</tr>
-			</table>
-		
-		
-		
-		
+		<table>
+			<tr>
+				<td>
+					<button onclick="document.location = 'DropTables.jsp'">Initialize Database</button>
+				</td>
+				<td>
+					<form action="list" method="get">
+						<button type="submit">View Registered Users</button>
+					</form>
+				</td>
+				<td><button>Insert A User</button></td>
+				<td><button>Edit A User</button></td>
+				<td><button>Delete Registered User</button></td>
+			</tr>
+		</table>
 	</div>
 </body>
 </html>

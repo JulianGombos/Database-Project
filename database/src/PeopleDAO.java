@@ -83,10 +83,12 @@ public class PeopleDAO {
     	String sql = "SELECT * FROM user WHERE Username='" + loginInfo.username + "'";
     	statement = (Statement) connect.createStatement();
     	ResultSet resultSet = statement.executeQuery(sql);
-    	resultSet.next();
+    	if(!resultSet.next()) {
+    		return false;
+    	}
     	String databasePassword = resultSet.getString("Password");
     	resultSet.close();
-        statement.close();         
+        statement.close();
         disconnect();
     	if(loginInfo.password.equals(databasePassword)) {
     		return true;
