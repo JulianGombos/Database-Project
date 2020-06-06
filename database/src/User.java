@@ -10,6 +10,9 @@ public class User {
 	public User() {
 		this.username = "null";
 		this.password = "null";
+		this.firstName = "null";
+		this.lastName = "null";
+		this.age = 0;
 	}
 	
 	public User(String username, String password) {
@@ -25,7 +28,7 @@ public class User {
 		this.age = age;
 	}
 	
-	String getUsername() {
+	public String getUsername() {
 		return this.username;
 	}
 	
@@ -33,11 +36,23 @@ public class User {
 		this.username = username;
 	}
 	
-	String getPassword() {
+	public String getPassword() {
 		return this.password;
 	}
 	
 	void setPassword(String password) {
 		this.password = password;
+	}
+	
+	public String getFirstName() {
+		return this.firstName;
+	}
+	
+	public String getLastName() {
+		return this.lastName;
+	}
+	
+	public String getAge() {
+		return Integer.toString(this.age);
 	}
 }
