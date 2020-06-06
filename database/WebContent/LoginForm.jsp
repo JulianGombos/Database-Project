@@ -11,26 +11,30 @@
 <body>
 	<center>
 		<h1>User Login</h1>
+        <a href="AddUser.jsp">Create User</a>
 	</center>
 	<div align="center">
 		<form action="login" method="post">
 	        <table>
-	        	<th>Username:</th>
 	        	<tr>
+	        		<th>Username:</th>
+	        		<td>
 		        	<input type="text" name="username" size="45" value="<c:out value='${user.username}' />"/>
+		        	</td>
 	        	</tr>
-	        	<th>Password:</th>
 	        	<tr>
+	        		<th>Password:</th>
+	        		<td>
 		        	<input type="text" name="password" size="45" value="<c:out value='${user.password}' />"/>
+		        	</td>
 	        	</tr>
-	        	<td align="center">
-                    <input type="submit" value="Save" />
+	        	<th></th>
+	        	<td>
+                    <input type="submit" value="Login" />
+                    <!--<a href="insert">Create New User</a>  -->
                 </td>
 	        </table>
         </form>
 	</div>
-
-
-
 </body>
 </html>

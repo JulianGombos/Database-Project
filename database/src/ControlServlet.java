@@ -56,10 +56,11 @@ public class ControlServlet extends HttpServlet {
         String password = request.getParameter("password");
         User loginInfo = new User(username, password);
         if(peopleDAO.checkLogin(loginInfo) == true) {
-        	System.out.println("Im in Control true");
-        	response.sendRedirect("GoodLogin.jsp");
+        	User userInfo = peopleDAO.getUserInfo(loginInfo);
+        	request.setAttribute("user", userInfo);
+        	RequestDispatcher dispatcher = request.getRequestDispatcher("GoodLogin.jsp");
+            dispatcher.forward(request, response);
         }else {
-        	System.out.println("Im in Control false");
         	System.out.println("Incorrect login info");
         	response.sendRedirect("LoginForm.jsp");
         }
@@ -69,27 +70,29 @@ public class ControlServlet extends HttpServlet {
             throws SQLException, IOException, ServletException {
     	String username = request.getParameter("username");
     	String password = request.getParameter("password");
+    	
+    	System.out.println("In addUser");
+    	System.out.println(username);
+    	System.out.println(password);
+    	
+    	String confirmPassword = request.getParameter("confirmpassword");
     	String firstName = request.getParameter("firstname");
     	String lastName = request.getParameter("lastname");
     	int age = Integer.parseInt(request.getParameter("age"));
     	User newUser = new User(username, password, firstName, lastName, age);
-    	if(peopleDAO.addNewUser(newUser)) {
-    		response.sendRedirect("LoginForm.jsp");
+    	if(password.equals(confirmPassword)) {
+    		if(peopleDAO.addNewUser(newUser)) {
+        		response.sendRedirect("LoginForm.jsp");
+        	}else {
+        		System.out.println("Error occured while adding user");
+        		response.sendRedirect("AddUser.jsp");
+        	}
     	}else {
-    		System.out.println("Error occured while adding user");
+    		System.out.println("Password mismatch");
     		response.sendRedirect("AddUser.jsp");
     	}
     }
     
-    /*private void insertPeople(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException {
-        String name = request.getParameter("name");
-        String address = request.getParameter("address");
-        String status = request.getParameter("status");
-        People newPeople = new People(name, address, status);
-        peopleDAO.insert(newPeople);
-        response.sendRedirect("list");  // The sendRedirect() method works at client side and sends a new request
-    }*/
 }
 
     

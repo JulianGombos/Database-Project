@@ -50,25 +50,25 @@ public class PeopleDAO {
         }
     }
     
-    /*public boolean insert(People people) throws SQLException {
-    	connect_func();         
-		String sql = "insert into  student(Name, Address, Status) values (?, ?, ?)";
-		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-		preparedStatement.setString(1, people.name);
-		preparedStatement.setString(2, people.address);
-		preparedStatement.setString(3, people.status);
-//		preparedStatement.executeUpdate();
-		
-        boolean rowInserted = preparedStatement.executeUpdate() > 0;
-        preparedStatement.close();
-//        disconnect();
-        return rowInserted;
-    }*/ 
-    
     public boolean addNewUser(User newUser) throws SQLException {
     	connect_func();
-    	String sql = "INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES (?, ?, ?, ?, ?)";
-    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+    	
+    	String getAllUsers = "SELECT Username FROM user";
+    	statement = (Statement) connect.createStatement();
+    	ResultSet usernames = statement.executeQuery(getAllUsers);
+    	
+    	while(usernames.next()) {
+    		if(usernames.getString("Username").equals(newUser.username)) {
+    			usernames.close();
+    			statement.close();
+    			disconnect();
+    			System.out.println("Username already exists");
+    			return false;
+    		}
+    	}
+    	
+		String insert = "INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES (?, ?, ?, ?, ?)";
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(insert);
     	preparedStatement.setString(1, newUser.username);
     	preparedStatement.setString(2, newUser.password);
     	preparedStatement.setString(3, newUser.firstName);
@@ -91,13 +91,9 @@ public class PeopleDAO {
     	resultSet.close();
         statement.close();         
         disconnect();
-        System.out.println(databasePassword);
-        System.out.println(loginInfo.password);
     	if(loginInfo.password.equals(databasePassword)) {
-    		System.out.println("Im in DAO true");
     		return true;
     	}else {
-    		System.out.println("Im in DAO false");
     		return false;
     	}
     }
@@ -106,6 +102,23 @@ public class PeopleDAO {
         if (connect != null && !connect.isClosed()) {
         	connect.close();
         }
+    }
+    
+    protected User getUserInfo(User loginInfo) throws SQLException {
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM user WHERE Username='" + loginInfo.username + "'";
+    	statement = (Statement) connect.createStatement();
+    	ResultSet resultSet = statement.executeQuery(sql);
+    	resultSet.next();
+    	
+    	User userInfo = new User(resultSet.getString("Username"), resultSet.getString("Password"),
+    			resultSet.getString("FirstName"), resultSet.getString("LastName"),
+    			Integer.parseInt(resultSet.getString("Age")));
+    	resultSet.close();
+        statement.close();         
+        disconnect();
+    	return userInfo;
     }
     
 }

@@ -7,51 +7,41 @@
 <title>Insert title here</title>
 </head>
 	<body>
-		<center>
-		<h1>Create User</h1>
-		</center>
+		<div align="center">
+			<a href="LoginForm.jsp">Login</a>
+			<table>
+				<tr>
+					<td><h1>Create New User</h1>
+	            	</td>
+					<td></td>
+				</tr>
+			</table>
+		</div>
 		<form action="insert" method="post">
 		<div align="center">
-			<table border="1" cellpadding="5">
-            <caption>
-                <h2>
-                        Add a New People now
-                </h2>
-            </caption>         
-            <tr>
-                <th>Username: </th>
+			<table border="1" cellpadding="5">        
+            <tr><th>Username: </th>
                 <td>
-                    <input type="text" name="username" size="45"/>
+                    <input type="text" name="username" size="45" required/>
                 </td>
             </tr>
-            <tr>
-                <th>Password: </th>
-                <td>
-                    <input type="text" name="password" size="45"/>
-                </td>
+            <tr><th>Password: </th>
+                <td><input type="text" name="password" size="45" required/></td>
+            </tr>
+            <tr><th>Confirm Password: </th>
+                <td><input type="text" name="confirmpassword" size="45" required/></td>
+            </tr>
+            <tr><th>First Name: </th>
+                <td><input type="text" name="firstname" size="45" required/></td>
+            </tr>
+            <tr><th>Last Name: </th>
+                <td><input type="text" name="lastname" size="45" required/></td>
+            </tr>
+            <tr><th>Age: </th>
+                <td><input type="text" name="age" size="5" required/></td>
             </tr>
             <tr>
-                <th>First Name: </th>
-                <td>
-                    <input type="text" name="firstname" size="45"/>
-                </td>
-            </tr>
-            <tr>
-                <th>Last Name: </th>
-                <td>
-                    <input type="text" name="lastname" size="45"/>
-                </td>
-            </tr>
-            <tr>
-                <th>Age: </th>
-                <td>
-                    <input type="text" name="age" size="5"/>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" align="center">
-                    <input type="submit" value="Save" />
-                </td>
+                <td colspan="2" align="center"><input type="submit" value="Save" /></td>
             </tr>
        	 </table>
        	 </form>
