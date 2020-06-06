@@ -14,10 +14,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
-//import java.sql.Connection;
-//import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-//import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,21 +101,84 @@ public class PeopleDAO {
         }
     }
     
-    protected User getUserInfo(User loginInfo) throws SQLException {
+    public User getUserInfo(User loginInfo) throws SQLException {
     	connect_func();
     	
     	String sql = "SELECT * FROM user WHERE Username='" + loginInfo.username + "'";
     	statement = (Statement) connect.createStatement();
     	ResultSet resultSet = statement.executeQuery(sql);
     	resultSet.next();
-    	
-    	User userInfo = new User(resultSet.getString("Username"), resultSet.getString("Password"),
-    			resultSet.getString("FirstName"), resultSet.getString("LastName"),
-    			Integer.parseInt(resultSet.getString("Age")));
+    	User userInfo;
+    	if(loginInfo.username.contentEquals("root")) {
+    		userInfo = new User(resultSet.getString("Username"), resultSet.getString("Password"));
+    		
+    	}else {
+    		userInfo = new User(resultSet.getString("Username"), resultSet.getString("Password"),
+        			resultSet.getString("FirstName"), resultSet.getString("LastName"),
+        			Integer.parseInt(resultSet.getString("Age")));
+    	}
     	resultSet.close();
-        statement.close();         
+        statement.close();     
         disconnect();
     	return userInfo;
+    }
+    
+    public void dropAllTables() throws SQLException{
+    	connect_func();
+    	
+    	String dropSQL = "DROP TABLE user";
+    	String createUserTable = "CREATE TABLE user (Username CHAR(50), Password CHAR(20), FirstName CHAR(50), LastName CHAR(50), Age INTEGER, PRIMARY KEY(Username))";
+    	String addRootUser = "INSERT INTO user(Username, Password) VALUES ('root','pass1234')";
+    	String[] users = {"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user1', 'pass1', 'user1First', 'user1Last', 1)",
+    			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user2', 'pass2', 'user2First', 'user2Last', 2)",
+    			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user3', 'pass3', 'user3First', 'user3Last', 3)",
+    			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user4', 'pass4', 'user4First', 'user4Last', 4)",
+    			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user5', 'pass5', 'user5First', 'user5Last', 5)",
+    			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user6', 'pass6', 'user6First', 'user6Last', 6)",
+    			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user7', 'pass7', 'user7First', 'user7Last', 7)",
+    			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user8', 'pass8', 'user8First', 'user8Last', 8)",
+    			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user9', 'pass9', 'user9First', 'user9Last', 9)",
+    			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user10', 'pass10', 'user10First', 'user10Last', 10)"
+    			};
+    	
+    	statement = (Statement) connect.createStatement();
+    	statement.execute(dropSQL);
+    	statement.execute(createUserTable);
+    	statement.execute(addRootUser);
+    	
+    	for(int i = 0; i < 10; i++) {
+    		statement.execute(users[i]);
+    	}
+    	statement.close();
+    	disconnect();
+    }
+    
+    public List<User> getAllUsers() throws SQLException{
+    	List<User> listOfUsers = new ArrayList<User>(); 
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM user";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+        while (resultSet.next()) {
+        	if(resultSet.getString("Username").equals("root")) {
+        		continue;
+        	}else {
+        		String username = resultSet.getString("Username");
+        		String password = resultSet.getString("Password");
+        		String firstName = resultSet.getString("FirstName");
+        		String lastName = resultSet.getString("LastName");
+        		int age = Integer.parseInt(resultSet.getString("Age"));
+        		
+        		User newUser = new User(username, password, firstName, lastName, age);
+                listOfUsers.add(newUser);
+        	}
+            
+        }        
+        resultSet.close();
+        statement.close();         
+        disconnect();        
+        return listOfUsers;
     }
     
 }

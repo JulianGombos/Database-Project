@@ -10,6 +10,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.mysql.cj.xdevapi.Session;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,9 +22,10 @@ import java.sql.PreparedStatement;
 public class ControlServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private PeopleDAO peopleDAO;
+    private HttpSession session = null;
  
     public void init() {
-        peopleDAO = new PeopleDAO(); 
+        peopleDAO = new PeopleDAO();
     }
  
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -41,6 +45,12 @@ public class ControlServlet extends HttpServlet {
             case "/insert":
             	addUser(request, response);
             	break;
+            case "/drop":
+            	dropTables(request, response);
+            	break;
+            case "/list":
+            	listAllUsers(request, response);
+            	break;
             default:          	
             	userLogin(request, response);           	
                 break;
@@ -56,10 +66,18 @@ public class ControlServlet extends HttpServlet {
         String password = request.getParameter("password");
         User loginInfo = new User(username, password);
         if(peopleDAO.checkLogin(loginInfo) == true) {
+        	session=request.getSession();
         	User userInfo = peopleDAO.getUserInfo(loginInfo);
-        	request.setAttribute("user", userInfo);
-        	RequestDispatcher dispatcher = request.getRequestDispatcher("GoodLogin.jsp");
-            dispatcher.forward(request, response);
+        	//session.setMaxInactiveInterval(5); Time in seconds before session goes inactive
+        	session.setAttribute("user", userInfo);
+        	if(userInfo.username.equals("root")) {
+        		boolean isRoot = true;
+        		session.setAttribute("isRoot", isRoot);
+        	}else {
+        		boolean isRoot = false;
+        		session.setAttribute("isRoot", isRoot);
+        	}
+        	response.sendRedirect("GoodLogin.jsp");
         }else {
         	System.out.println("Incorrect login info");
         	response.sendRedirect("LoginForm.jsp");
@@ -70,11 +88,6 @@ public class ControlServlet extends HttpServlet {
             throws SQLException, IOException, ServletException {
     	String username = request.getParameter("username");
     	String password = request.getParameter("password");
-    	
-    	System.out.println("In addUser");
-    	System.out.println(username);
-    	System.out.println(password);
-    	
     	String confirmPassword = request.getParameter("confirmpassword");
     	String firstName = request.getParameter("firstname");
     	String lastName = request.getParameter("lastname");
@@ -92,6 +105,30 @@ public class ControlServlet extends HttpServlet {
     		response.sendRedirect("AddUser.jsp");
     	}
     }
+    
+    private void dropTables(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	peopleDAO.dropAllTables();
+    	response.sendRedirect("LoginForm.jsp");
+    }
+    
+    private void listAllUsers(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	List<User> userList = peopleDAO.getAllUsers();
+    	request.setAttribute("userList", userList);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("RegisteredUsers.jsp");       
+        dispatcher.forward(request, response);
+    }
+    
+    /*
+     * private void listPeople(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+        List<People> listPeople = peopleDAO.listAllPeople();
+        request.setAttribute("listPeople", listPeople);       
+        RequestDispatcher dispatcher = request.getRequestDispatcher("PeopleList.jsp");       
+        dispatcher.forward(request, response);
+    }
+     */
     
 }
 
