@@ -19,13 +19,13 @@
 	        	<tr>
 	        		<th>Username:</th>
 	        		<td>
-		        	<input type="text" name="username" size="45" value="<c:out value='${user.username}' />"/>
+		        	<input type="text" name="username" size="45" value="<c:out value='${user.username}' />" required/>
 		        	</td>
 	        	</tr>
 	        	<tr>
 	        		<th>Password:</th>
 	        		<td>
-		        	<input type="text" name="password" size="45" value="<c:out value='${user.password}' />"/>
+		        	<input type="text" name="password" size="45" value="<c:out value='${user.password}' />" required/>
 		        	</td>
 	        	</tr>
 	        	<th></th>
