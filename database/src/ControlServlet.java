@@ -77,7 +77,7 @@ public class ControlServlet extends HttpServlet {
         		boolean isRoot = false;
         		session.setAttribute("isRoot", isRoot);
         	}
-        	response.sendRedirect("GoodLogin.jsp");
+        	response.sendRedirect("UserHomePage.jsp");
         }else {
         	System.out.println("Incorrect login info");
         	response.sendRedirect("LoginForm.jsp");

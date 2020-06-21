@@ -8,7 +8,7 @@
 <title>Registered Users</title>
 </head>
 <body>
-	<h1><a href="GoodLogin.jsp">Back to Home</a></h1>
+	<h1><a href="UserHomePage.jsp">Back to Home</a></h1>
 	<div align="center">
 		<table border="1" cellpadding="5">
             <caption><h2>List of Registered Users</h2></caption>
