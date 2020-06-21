@@ -13,7 +13,7 @@
 		<form action="drop" method="post">
 			<input type="submit" value="YES">
 		</form>
-		<button onclick="document.location = 'GoodLogin.jsp'">NO</button>
+		<button onclick="document.location = 'UserHomePage.jsp'">NO</button>
 	</div>
 </body>
 </html>
