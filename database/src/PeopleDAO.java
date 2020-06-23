@@ -183,6 +183,42 @@ public class PeopleDAO {
         return listOfUsers;
     }
     
+    public List<YoutubeVideo> getSearchResults(String userInput) throws SQLException {
+    	List<YoutubeVideo> searchResults = new ArrayList<YoutubeVideo>();
+    	String sql;
+    	if(userInput.contains(" ")) {
+    		String[] query = userInput.split(" ");
+    		String first = query[0];
+    		String second = query[1];
+    		sql = "SELECT comid FROM comedians WHERE FirstName='" + first + "' OR LastName='" + second + "'";
+    	}else {
+    		sql = "SELECT comid FROM comedians WHERE FirstName='" + userInput + "' OR LastName='" + userInput + "'";
+    	}
+    	
+    	connect_func();
+    	
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+        List<String> comids = new ArrayList<String>(); 
+        while(resultSet.next()) {
+        	comids.add(resultSet.getString("comid"));
+        }
+        
+        for(int i = 0; i < comids.size();i++) {
+        	String sql2 = "SELECT * FROM youtubevideos WHERE comid='" + comids.get(i) + "'";
+    		ResultSet videoResultSet = statement.executeQuery(sql2);
+    		while(videoResultSet.next()) {
+    			YoutubeVideo video = new YoutubeVideo(videoResultSet.getString("url"), videoResultSet.getString("Title"), videoResultSet.getString("PostUser"));
+    			searchResults.add(video);
+    		}
+        }
+    	
+    	resultSet.close();
+    	statement.close();         
+        disconnect();
+    	return searchResults;
+    }
+    
 }
     
 /**
