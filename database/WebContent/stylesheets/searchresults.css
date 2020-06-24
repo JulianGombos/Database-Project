@@ -1,13 +1,20 @@
 body {
-  padding-bottom: 40px;
-  background-color: #f5f5f5;
+	background-color: #f5f5f5;
 }
 
-.topnavbar {
-  	width: 100%;
+.resulttable {
+	width: 800px;
+	margin-left: auto;
+    margin-right: auto;
+    padding-top: 40px;
+}
+
+.topbar {
+	width: 100%;
 	height: 60px;
 	background-color: #dedcdb;
 	box-shadow: 0px 1px 10px;
+	
 }
 
 .container {
@@ -16,7 +23,7 @@ body {
 	align-content: center;
 }
 
-.login-button {
+.home-button {
 	position: absolute;
 	padding-top: 10px;
 	margin-left: -100px;

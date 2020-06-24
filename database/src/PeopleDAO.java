@@ -212,11 +212,79 @@ public class PeopleDAO {
     			searchResults.add(video);
     		}
         }
-    	
     	resultSet.close();
     	statement.close();         
         disconnect();
     	return searchResults;
+    }
+    
+    public List<Comedian> getAllComediansNotInFavorite(String givenUsername) throws SQLException{
+    	List<Comedian> allComedians = new ArrayList<Comedian>();
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM comedians WHERE comid NOT IN (SELECT comid FROM isfavorite WHERE Username='" + givenUsername +"')";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet comedianResultSet = statement.executeQuery(sql);
+        
+        while(comedianResultSet.next()) {
+        	allComedians.add(new Comedian(Integer.parseInt(comedianResultSet.getString("comid")), comedianResultSet.getString("FirstName"), comedianResultSet.getString("LastName"), 
+        			comedianResultSet.getString("Birthday"), comedianResultSet.getString("BirthPlace")));
+        }
+        comedianResultSet.close();
+        statement.close();
+        disconnect();
+    	return allComedians;
+    }
+    
+    public List<Comedian> getFavoriteList(String givenUsername) throws SQLException{
+    	List<Comedian> favoriteList = new ArrayList<Comedian>(); 
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM isfavorite WHERE Username='" + givenUsername + "'";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+        
+        List<String> comids = new ArrayList<String>(); 
+        while(resultSet.next()) {
+        	comids.add(resultSet.getString("comid"));
+        }
+        
+        for(int i = 0; i < comids.size();i++) {
+        	String sql2 = "SELECT * FROM comedians WHERE comid='" + comids.get(i) + "'";
+        	ResultSet comedianResultSet = statement.executeQuery(sql2);
+        	
+        	comedianResultSet.next(); 
+    		favoriteList.add(new Comedian(Integer.parseInt(comedianResultSet.getString("comid")), comedianResultSet.getString("FirstName"), comedianResultSet.getString("LastName"), 
+    			comedianResultSet.getString("Birthday"), comedianResultSet.getString("BirthPlace")));
+        }
+        resultSet.close();
+    	statement.close();
+        disconnect();        
+        return favoriteList;
+    }
+    
+    public void deleteFromFavorite(String username, String comid) throws SQLException{
+    	
+    	String sql = "DELETE FROM isfavorite WHERE Username='" + username + "' AND comid='" + comid + "'";
+    	
+    	connect_func();
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+    	
+    	preparedStatement.close();
+    	disconnect();
+    }
+    
+    public void addToFavorite(String username, String comid) throws SQLException{
+    	
+    	String sql = "INSERT INTO isfavorite (Username, comid) VALUES ('" + username + "', '" + comid + "')";
+    	
+    	connect_func();
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        preparedStatement.close();
+    	disconnect();
     }
     
 }

@@ -54,6 +54,15 @@ public class ControlServlet extends HttpServlet {
             case "/search":
             	search(request, response);
             	break;
+            case "/favoritelist":
+            	favoriteList(request, response);
+            	break;
+            case "/deletefavorite":
+            	deleteFavorite(request, response);
+            	break;
+            case "/addfavorite":
+            	addFavorite(request, response);
+            	break;
             default:          	
             	userLogin(request, response);           	
                 break;
@@ -128,8 +137,36 @@ public class ControlServlet extends HttpServlet {
     	String userInput = request.getParameter("search");
     	List<YoutubeVideo> searchResults = peopleDAO.getSearchResults(userInput);
     	request.setAttribute("searchResults", searchResults);
+    	request.setAttribute("userInput", userInput);
     	RequestDispatcher dispatcher = request.getRequestDispatcher("SearchResultsPage.jsp");
     	dispatcher.forward(request, response);
+    }
+    
+    private void favoriteList(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	User newUser = (User)session.getAttribute("user");
+    	List<Comedian> favoriteList = peopleDAO.getFavoriteList(newUser.username);
+    	request.setAttribute("favoriteList", favoriteList);
+    	List<Comedian> comedians = peopleDAO.getAllComediansNotInFavorite(newUser.username);
+    	request.setAttribute("comedians", comedians);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("FavoriteList.jsp");
+    	dispatcher.forward(request, response);
+    }
+    
+    private void deleteFavorite(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException {
+        String givenComid = request.getParameter("id");
+        User newUser = (User)session.getAttribute("user");
+        peopleDAO.deleteFromFavorite(newUser.username, givenComid);
+        response.sendRedirect("favoritelist");
+    }
+    
+    private void addFavorite(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException {
+    	String givenComid = request.getParameter("comid");
+        User newUser = (User)session.getAttribute("user");
+        peopleDAO.addToFavorite(newUser.username, givenComid);
+        response.sendRedirect("favoritelist");
     }
     
 }
