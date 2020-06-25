@@ -51,6 +51,12 @@ public class ControlServlet extends HttpServlet {
             case "/list":
             	listAllUsers(request, response);
             	break;
+            case "/upload":
+            	uploadVideo(request, response);
+            	break;
+            case "/writeReview":
+            	writeReview(request, response);
+            	break; 
             default:          	
             	userLogin(request, response);           	
                 break;
@@ -70,6 +76,7 @@ public class ControlServlet extends HttpServlet {
         	User userInfo = peopleDAO.getUserInfo(loginInfo);
         	//session.setMaxInactiveInterval(5); Time in seconds before session goes inactive
         	session.setAttribute("user", userInfo);
+        	
         	if(userInfo.username.equals("root")) {
         		boolean isRoot = true;
         		session.setAttribute("isRoot", isRoot);
@@ -119,7 +126,35 @@ public class ControlServlet extends HttpServlet {
     	RequestDispatcher dispatcher = request.getRequestDispatcher("RegisteredUsers.jsp");       
         dispatcher.forward(request, response);
     }
+    private void uploadVideo(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	
+    	User newUser = (User)session.getAttribute("user");
+    	String userName = newUser.username; 
+    	String url = request.getParameter("URL");
+    	String title = request.getParameter("Title");
+    	String description = request.getParameter("Description");
+    	String tags = request.getParameter("Tags");
+    	String nameComedian = request.getParameter("comedianName");
+    	peopleDAO.insertVideo(userName, url, title, description, tags, nameComedian);
+    	response.sendRedirect("UserHomePage.jsp");
+    	
+    }
+    private void writeReview(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	
+    	User newUser = (User)session.getAttribute("user");
+    	String userName = newUser.username; 
+    	String review = request.getParameter("review");
+    	String rating = request.getParameter("rating");
+    	peopleDAO.insertReview(userName, review, rating); 
+    	response.sendRedirect("VideoPage.jsp");
+    	 
+    	
+    }
     
+
+}
     /*
      * private void listPeople(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException, ServletException {
@@ -130,7 +165,7 @@ public class ControlServlet extends HttpServlet {
     }
      */
     
-}
+
 
     
 /*
