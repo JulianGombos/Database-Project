@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -38,5 +39,11 @@
 				<button class="btn btn-primary btn-lg active" type="submit">Display Favorite Comedians</button>
 			</form>
 		</div>
+		<div align="center">
+		<a href = "AddVideo.jsp">Upload Video </a>
+		</div>
+		<div align="center"> 
+		<a href = "VideoPage.jsp">Go to Video Page </a> <!-- this will be removed once merged -->
+	</div>
 	</body>
 </html>

@@ -182,6 +182,87 @@ public class PeopleDAO {
         disconnect();        
         return listOfUsers;
     }
+    public void insertVideo(String userName, String link, String videoTitle, String videoDescription, String videoTags, String nameComedian) throws SQLException{
+    	connect_func();
+    	
+    	
+    	// This line of code is to get the current date and convert object to string 
+    	long millis=System.currentTimeMillis();  
+    	java.sql.Date date=new java.sql.Date(millis);  
+    	String dateString=date.toString(); 
+    	System.out.println(dateString);
+    	
+    	// This line of code is to see if the url (String link) is already in the youtubevideos table
+    	String urlCheck = "SELECT COUNT(*) FROM youtubevideos WHERE URL ='"+ link + "'";
+    	statement = (Statement) connect.createStatement();
+    	ResultSet urlExist = statement.executeQuery(urlCheck);
+    	if (urlExist.next()) {
+    		int numUrl = urlExist.getInt(1);
+        	System.out.println("Number of url: " + numUrl);
+        	if (numUrl > 0) {
+        		System.out.println("The URL is already in the table cannot add video");
+        		return;
+        	}
+    	}else {
+    		System.out.println("Error checking if the URL exist");
+    		return;
+    	}
+    	
+    	// This line of code is to check if the user has posted more than 5 videos in same day
+    	String numberVideoPosts = "SELECT COUNT(*) FROM youtubevideos WHERE PostUser ='"+ userName +"' AND PostDate = '"+ dateString +"'";
+    	ResultSet videoNum = statement.executeQuery(numberVideoPosts);
+    	if (videoNum.next()) {
+    		int numberOfVideos = videoNum.getInt(1); // 1 is the column number starts at 1
+        	System.out.println("Number of Videos Posted in a day: " + numberOfVideos);
+        	if (numberOfVideos < 5) { // if video posts in a day are less than 5 then continue adding video
+        		// This line of code is going to extract the comid from the comedian table based on
+            	// the nameComedian string which holds the comedians last name which is used to search for 
+            	// comid in the comedian table. 
+            	String comedianID = "SELECT comid FROM comedians WHERE LastName ='"+ nameComedian +"'";
+            	ResultSet comedianName = statement.executeQuery(comedianID);
+            	int id = 0;
+            	if (comedianName.next()) {
+            		id = comedianName.getInt("comid");
+                	System.out.println("Comedian id: " + id);
+               	}else {
+               		System.out.println("Comedian id was not found");
+               		return;
+               	}
+            	// This line of code is to insert video into youtubevideos table
+            	String insert = "INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) "
+            			+ "VALUES (?, ?, ?, ?, ?, ?)";
+            	preparedStatement = (PreparedStatement) connect.prepareStatement(insert);
+            	preparedStatement.setString(1, link);
+            	preparedStatement.setString(2, videoTitle);
+            	preparedStatement.setString(3, videoDescription);
+            	preparedStatement.setInt(4, id);
+            	preparedStatement.setString(5, userName);
+            	preparedStatement.setString(6, dateString);
+            	preparedStatement.executeUpdate();
+            	preparedStatement.close();
+            	// This line of code is to insert into youtubetags table
+            	String enter = "INSERT INTO youtubetags(url, Tag) "
+            			+ "VALUES (?, ?)";
+            	preparedStatement = (PreparedStatement) connect.prepareStatement(enter);
+            	preparedStatement.setString(1, link);
+            	preparedStatement.setString(2, videoTags);
+            	preparedStatement.executeUpdate();
+            	preparedStatement.close();
+            	statement.close();
+            	disconnect();
+            	System.out.println("Sucessfully inserted a video and added video tags");
+        	}
+        	else {
+        		System.out.println("The number of videos allowed to post in a day exceeds the limit 5");
+        		return; 
+        	}
+       	}else {
+       		System.out.println("Error checking number of videos posted in a day");
+       		return; 
+       	}
+    	
+    	
+    }
     
     public List<YoutubeVideo> getSearchResults(String userInput) throws SQLException {
     	List<YoutubeVideo> searchResults = new ArrayList<YoutubeVideo>();
@@ -287,35 +368,22 @@ public class PeopleDAO {
     	disconnect();
     }
     
+    public void insertReview(String userName, String remark, String rating) throws SQLException{
+    	connect_func();
+    	
+    	// This line of code is to insert review into reviews table
+    	String insert = "INSERT INTO reviews(Remark, Rating, Author, Youtubeid) "
+    			+ "VALUES (?, ?, ?, ?)";
+    	String youtubeidtemp = "ignore";
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(insert);
+    	preparedStatement.setString(1, remark);
+    	preparedStatement.setString(2, rating);
+    	preparedStatement.setString(3, userName);
+    	preparedStatement.setString(4, youtubeidtemp);
+    	preparedStatement.executeUpdate();
+    	preparedStatement.close();
+    	disconnect();
+
+    }
+
 }
-/*
-    
-    public boolean delete(int peopleid) throws SQLException {
-        String sql = "DELETE FROM student WHERE id = ?";        
-        connect_func();
-         
-        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-        preparedStatement.setInt(1, peopleid);
-         
-        boolean rowDeleted = preparedStatement.executeUpdate() > 0;
-        preparedStatement.close();
-//        disconnect();
-        return rowDeleted;     
-    }
-     
-    public boolean update(People people) throws SQLException {
-        String sql = "update student set Name=?, Address =?,Status = ? where id = ?";
-        connect_func();
-        
-        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-        preparedStatement.setString(1, people.name);
-        preparedStatement.setString(2, people.address);
-        preparedStatement.setString(3, people.status);
-        preparedStatement.setInt(4, people.id);
-         
-        boolean rowUpdated = preparedStatement.executeUpdate() > 0;
-        preparedStatement.close();
-//        disconnect();
-        return rowUpdated;     
-    }
-    */
