@@ -1,4 +1,3 @@
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.DriverManager;
@@ -24,11 +23,8 @@ public class PeopleDAO {
 	private Connection connect = null;
 	private Statement statement = null;
 	private PreparedStatement preparedStatement = null;
-	private ResultSet resultSet = null;
 	
-	public PeopleDAO() {
-
-    }
+	public PeopleDAO() {}
 	       
     /**
      * @see HttpServlet#HttpServlet()
@@ -265,18 +261,42 @@ public class PeopleDAO {
     }
     
     public List<YoutubeVideo> getSearchResults(String userInput) throws SQLException {
+    	connect_func();
     	List<YoutubeVideo> searchResults = new ArrayList<YoutubeVideo>();
     	String sql;
     	if(userInput.contains(" ")) {
     		String[] query = userInput.split(" ");
     		String first = query[0];
     		String second = query[1];
-    		sql = "SELECT comid FROM comedians WHERE FirstName='" + first + "' OR LastName='" + second + "'";
+    		sql= "SELECT comid FROM comedians WHERE FirstName='" + first + "' OR FirstName='" + second + "' OR LastName='" + first + "' OR LastName='" + second + "'";
+    	}else if(userInput.contains(",")){
+    		String[] query = userInput.split(",");
+    		sql = "SELECT url FROM youtubetags WHERE Tag LIKE '%" + query[0] + "%' ";
+    		for(int i = 1; i < query.length; i++) {
+    			sql.concat("OR Tag LIKE '%" + query[i] +"%' ");
+    		}
+    		
+    		statement =  (Statement) connect.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            
+            while(resultSet.next()) {
+            	String sql2 = "SELECT * FROM youtubevideos WHERE url='" + resultSet.getString("url") + "'";
+            	Statement statement2 =  (Statement) connect.createStatement();
+                ResultSet videoResultSet = statement2.executeQuery(sql2);
+                while(videoResultSet.next()) {
+        			YoutubeVideo video = new YoutubeVideo(videoResultSet.getString("url"), videoResultSet.getString("Title"), videoResultSet.getString("PostUser"));
+        			searchResults.add(video);
+        		}
+            }
+            
+            resultSet.close();
+        	statement.close();         
+            disconnect();
+        	return searchResults;
+    		
     	}else {
     		sql = "SELECT comid FROM comedians WHERE FirstName='" + userInput + "' OR LastName='" + userInput + "'";
     	}
-    	
-    	connect_func();
     	
     	statement =  (Statement) connect.createStatement();
         ResultSet resultSet = statement.executeQuery(sql);
@@ -368,22 +388,118 @@ public class PeopleDAO {
     	disconnect();
     }
     
-    public void insertReview(String userName, String remark, String rating) throws SQLException{
+    public void insertReview(String userName, String remark, String rating, String url) throws SQLException{
     	connect_func();
     	
     	// This line of code is to insert review into reviews table
     	String insert = "INSERT INTO reviews(Remark, Rating, Author, Youtubeid) "
     			+ "VALUES (?, ?, ?, ?)";
-    	String youtubeidtemp = "ignore";
+
     	preparedStatement = (PreparedStatement) connect.prepareStatement(insert);
     	preparedStatement.setString(1, remark);
     	preparedStatement.setString(2, rating);
     	preparedStatement.setString(3, userName);
-    	preparedStatement.setString(4, youtubeidtemp);
+    	preparedStatement.setString(4, url);
     	preparedStatement.executeUpdate();
     	preparedStatement.close();
     	disconnect();
 
     }
+    
+    public List<Review> getAllReviews(String url) throws SQLException{
+    	List<Review> allReviews = new ArrayList<Review>();
+    	
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM reviews WHERE Youtubeid='" + url + "'";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+        
+        while(resultSet.next()) {
+        	allReviews.add(new Review(resultSet.getString("Author"), resultSet.getString("Remark")));
+        }
+        
+        resultSet.close();
+        statement.close();
+        disconnect();
+        return allReviews;
+    }
+    
+    public boolean getHasReview(String url, User user) throws SQLException{
+    	connect_func();
+    	
+    	String sql="SELECT * FROM reviews WHERE Author='" + user.username +"' AND Youtubeid='" + url + "'";
+    	statement = (Statement)connect.createStatement();
+    	ResultSet resultSet = statement.executeQuery(sql);
+    	
+    	if(resultSet.next()) {
+    		resultSet.close();
+    		statement.close();
+    		disconnect();
+    		return true;
+    	}else {
+    		resultSet.close();
+    		statement.close();
+    		disconnect();
+    		return false;
+    	}
+    	
+    }
+    
+    public void videoAddToFavorite(String username, String url) throws SQLException{
+    	connect_func();
+    	
+    	String sql= "SELECT comid FROM youtubevideos WHERE url='" + url + "'";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+    	resultSet.next();
+    	
+    	String sql2 = "INSERT INTO isfavorite (Username, comid) VALUES ('" + username + "', '" + resultSet.getString("comid") + "')";
+    	
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql2);
+        preparedStatement.executeUpdate();
+        
+        preparedStatement.close();
+        resultSet.close();
+        statement.close();
+        disconnect();
+    }
+    
+    public YoutubeVideo getVideo(String url) throws SQLException {
+    	connect_func();
+    	
+    	String sql= "SELECT * FROM youtubevideos WHERE url='" + url + "'";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+    	resultSet.next();
+    	
+        YoutubeVideo videoData = new YoutubeVideo(resultSet.getString("url"), resultSet.getString("Title"), resultSet.getString("VideoDescription"),
+        		Integer.parseInt(resultSet.getString("comid")), resultSet.getString("PostUser"), resultSet.getDate("PostDate"));
+    	
+        resultSet.close();
+        statement.close();
+        disconnect();
+        
+        return videoData;
+    }
+    
+    public boolean isFavorite(String username, String comid) throws SQLException{
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM isfavorite WHERE Username='" + username + "' AND comid='" + comid + "'";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
 
+    	if(resultSet.next()) {
+    		resultSet.close();
+            statement.close();
+            disconnect();
+    		return true;
+    	}else {
+    		resultSet.close();
+            statement.close();
+            disconnect();
+            return false;
+    	}
+    }
 }

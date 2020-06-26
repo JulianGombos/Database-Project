@@ -68,7 +68,13 @@ public class ControlServlet extends HttpServlet {
             	break;
             case "/writeReview":
             	writeReview(request, response);
-            	break; 
+            	break;
+            case "/tovideopage":
+            	toVideoPage(request, response);
+            	break;
+            case "/videoaddfavorite":
+            	videoAddToFavorite(request, response);
+            	break;
             default:          	
             	userLogin(request, response);           	
                 break;
@@ -155,17 +161,30 @@ public class ControlServlet extends HttpServlet {
     private void writeReview(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException, ServletException {
     	
+    	System.out.println(request.getRequestURL());
+    	
     	User newUser = (User)session.getAttribute("user");
+    	String videoUrl = request.getParameter("url");
     	String userName = newUser.username; 
     	String review = request.getParameter("review");
     	String rating = request.getParameter("rating");
-    	peopleDAO.insertReview(userName, review, rating); 
-    	response.sendRedirect("VideoPage.jsp");
-    	 
-    	
+    	peopleDAO.insertReview(userName, review, rating, videoUrl);
+    	boolean hasReview = peopleDAO.getHasReview(videoUrl, newUser);
+    	String endOfUrl = videoUrl.split("=")[1];
+    	List<Review> allReviews = peopleDAO.getAllReviews(videoUrl);
+    	YoutubeVideo newVideo = peopleDAO.getVideo(videoUrl);
+    	boolean isFavorite = peopleDAO.isFavorite(newUser.username, Integer.toString(newVideo.comid));
+    	request.setAttribute("hasReview", hasReview);
+    	request.setAttribute("isFavorite", isFavorite);
+    	request.setAttribute("cutUrl", endOfUrl);
+    	request.setAttribute("fullUrl", videoUrl);
+    	request.setAttribute("allReviews", allReviews);
+    	request.setAttribute("videoData", newVideo);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("VideoPage.jsp");
+    	dispatcher.forward(request, response);
     }
     
-    private void search(HttpServletRequest request, HttpServletResponse response) {
+    private void search(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
         String userInput = request.getParameter("search");
     	List<YoutubeVideo> searchResults = peopleDAO.getSearchResults(userInput);
     	request.setAttribute("searchResults", searchResults);
@@ -210,132 +229,43 @@ public class ControlServlet extends HttpServlet {
         peopleDAO.addToFavorite(newUser.username, givenComid);
         response.sendRedirect("favoritelist");
     }
-}
-
     
-/*
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.List;
- 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
-
-public class ControlServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-    private PeopleDAO peopleDAO;
- 
-    public void init() {
-        peopleDAO = new PeopleDAO(); 
-    }
- 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doGet(request, response);
-    }
- 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String action = request.getServletPath();
-        System.out.println(action);
-        try {
-            switch (action) {
-            case "/new":
-                showNewForm(request, response);
-                break;
-            case "/insert":
-            	insertPeople(request, response);
-                break;
-            case "/delete":
-            	deletePeople(request, response);
-                break;
-            case "/edit":
-                showEditForm(request, response);
-                break;
-            case "/update":
-            	updatePeople(request, response);
-                break;
-            default:          	
-            	listPeople(request, response);           	
-                break;
-            }
-        } catch (SQLException ex) {
-            throw new ServletException(ex);
-        }
-    }
-    
-    private void listPeople(HttpServletRequest request, HttpServletResponse response)
+    private void toVideoPage(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException, ServletException {
-        List<People> listPeople = peopleDAO.listAllPeople();
-        request.setAttribute("listPeople", listPeople);       
-        RequestDispatcher dispatcher = request.getRequestDispatcher("PeopleList.jsp");       
-        dispatcher.forward(request, response);
+    	String sentUrl = request.getParameter("url");
+    	String endOfUrl = sentUrl.split("=")[1];
+    	User newUser = (User)session.getAttribute("user");
+    	YoutubeVideo newVideo = peopleDAO.getVideo(sentUrl);
+    	List<Review> allReviews = peopleDAO.getAllReviews(sentUrl);
+    	boolean hasReview = peopleDAO.getHasReview(sentUrl, newUser);
+    	boolean isFavorite = peopleDAO.isFavorite(newUser.username, Integer.toString(newVideo.comid));
+    	request.setAttribute("isFavorite", isFavorite);
+    	request.setAttribute("hasReview", hasReview);
+    	request.setAttribute("cutUrl", endOfUrl);
+    	request.setAttribute("fullUrl", sentUrl);
+    	request.setAttribute("allReviews", allReviews);
+    	request.setAttribute("videoData", newVideo);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("VideoPage.jsp");
+    	dispatcher.forward(request, response);
     }
- 
-    // to insert a people
-    private void showNewForm(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        RequestDispatcher dispatcher = request.getRequestDispatcher("InsertPeopleForm.jsp");
-        dispatcher.forward(request, response);
+    
+    private void videoAddToFavorite(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	String sentUrl = request.getParameter("url");
+    	User newUser = (User)session.getAttribute("user");
+    	YoutubeVideo newVideo = peopleDAO.getVideo(sentUrl);
+    	peopleDAO.videoAddToFavorite(newUser.username, sentUrl);
+    	boolean hasReview = peopleDAO.getHasReview(sentUrl, newUser);
+    	request.setAttribute("hasReview", hasReview);
+    	String endOfUrl = sentUrl.split("=")[1];
+    	List<Review> allReviews = peopleDAO.getAllReviews(sentUrl);
+    	boolean isFavorite = peopleDAO.isFavorite(newUser.username, Integer.toString(newVideo.comid));
+    	request.setAttribute("isFavorite", isFavorite);
+    	request.setAttribute("cutUrl", endOfUrl);
+    	request.setAttribute("fullUrl", sentUrl);
+    	request.setAttribute("allReviews", allReviews);
+    	request.setAttribute("videoData", newVideo);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("VideoPage.jsp");
+    	dispatcher.forward(request, response);
     }
- 
-    // to present an update form to update an  existing Student
-    private void showEditForm(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        People existingPeople = peopleDAO.getPeople(id);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("EditPeopleForm.jsp");
-        request.setAttribute("people", existingPeople);
-        dispatcher.forward(request, response); // The forward() method works at server side, and It sends the same request and response objects to another servlet.
- 
-    }
- 
-    // after the data of a people are inserted, this method will be called to insert the new people into the DB
-    // 
-    private void insertPeople(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException {
-        String name = request.getParameter("name");
-        String address = request.getParameter("address");
-        String status = request.getParameter("status");
-        People newPeople = new People(name, address, status);
-        peopleDAO.insert(newPeople);
-        response.sendRedirect("list");  // The sendRedirect() method works at client side and sends a new request
-    }
- 
-    private void updatePeople(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        
-        System.out.println(id);
-        String name = request.getParameter("name");
-        String address = request.getParameter("address");
-        String status = request.getParameter("status");
-        
-        System.out.println(name);
-        
-        People people = new People(id,name, address, status);
-        peopleDAO.update(people);
-        response.sendRedirect("list");
-    }
- 
-    private void deletePeople(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        //People people = new People(id);
-        peopleDAO.delete(id);
-        response.sendRedirect("list"); 
-    }
-
 }
-*/

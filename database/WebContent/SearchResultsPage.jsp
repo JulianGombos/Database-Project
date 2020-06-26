@@ -33,26 +33,30 @@
 				</form>
 			</div>
 		</div>
-		<div class="resulttable">
-		<h1 align="center">Search Results for "${userInput}"</h1>
-	        <table class="table table-striped">
-	        	<thead class="thead-dark">
-	        		<tr>
-	        			<th scope="col">Video Title</th>
-	        			<th scope="col">Post User</th>
-	        			<th scope="col">Video URL</th>
-	        		</tr>
-	        	</thead>
-	        	<tbody>
-	        		<c:forEach var="result" items="${searchResults}">
-		                <tr>
-		                    <td><c:out value="${result.title}" /></td>
-		                    <td><c:out value="${result.postUser}" /></td>
-		                    <td><a href=<c:out value="${result.url}" />><c:out value="${result.url}" /></a></td>
-		                </tr>
-	            </c:forEach>
-	        	</tbody>
-	        </table>
-		</div>
+		<form action="tovideopage" method="get">
+			<div class="resulttable">
+			<h1 align="center">Search Results for "${userInput}"</h1>
+		        <table class="table table-striped">
+		        	<thead class="thead-dark">
+		        		<tr>
+		        			<th scope="col">Video Title</th>
+		        			<th scope="col">Post User</th>
+		        			<th scope="col">Video URL</th>
+		        			<th scope="col">Action</th>
+		        		</tr>
+		        	</thead>
+		        	<tbody>
+		        		<c:forEach var="result" items="${searchResults}">
+			                <tr>
+			                    <td><c:out value="${result.title}" /></td>
+			                    <td><c:out value="${result.postUser}" /></td>
+			                    <td><a href=<c:out value="${result.url}" />><c:out value="${result.url}" /></a></td>
+			                    <td><button name="url" class="btn btn-secondary btn-sm active" type="submit" value=<c:out value="${result.url}" />>Watch Video</button></td>
+			                </tr>
+		            </c:forEach>
+		        	</tbody>
+		        </table>
+			</div>
+		</form>
 	</body>
 </html>

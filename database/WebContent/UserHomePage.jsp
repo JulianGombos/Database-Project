@@ -18,7 +18,7 @@
 	<body>
 		<% if(session == null){ response.sendRedirect("LoginForm.jsp");}%>
 		<div class="topnavbar">
-			<div class="container">
+			<div class="container2">
 				<div class="login-button">
 					<a href="LoginForm.jsp" class="btn btn-light" role="button" aria-pressed="true">Sign Out</a>
 				</div>
@@ -32,18 +32,39 @@
 						<button class="btn btn-secondary btn-sm active" type="submit">Search</button>
 					</div>
 				</form>
+				<div class="add-video-button">
+					<a href="AddVideo.jsp" class="btn btn-primary" role="button" aria-pressed="true">Upload Video</a>
+				</div>
 			</div>
 		</div>
+		<div class="user-header">
+			<div style="font-size: 20px; font-weight: bold;">
+				Welcome <c:out value="${user.firstName}" /> <c:out value="${user.lastName}" />!
+			</div>
+		</div>
+			<div class="user-info">
+				<table>
+					<tr>
+						<td>Username: </td>
+						<td><c:out value="${user.username}" /></td>
+					</tr>
+					<tr>
+						<td>Password: </td>
+						<td><c:out value="${user.password}" /></td>
+					</tr>
+					<tr>
+						<td>Age: </td>
+						<td><c:out value="${isRoot ? '' : user.age}" /></td>
+					</tr>
+				</table>
+			</div>
+			<div class="user-header">
+				<hr>
+			</div>
 		<div style="padding-top: 20px; padding-left: 10px">
 			<form action="favoritelist" method="get">
 				<button class="btn btn-primary btn-lg active" type="submit">Display Favorite Comedians</button>
 			</form>
 		</div>
-		<div align="center">
-		<a href = "AddVideo.jsp">Upload Video </a>
-		</div>
-		<div align="center"> 
-		<a href = "VideoPage.jsp">Go to Video Page </a> <!-- this will be removed once merged -->
-	</div>
 	</body>
 </html>

@@ -16,20 +16,45 @@ body {
 	align-content: center;
 }
 
+.container2 {
+	display: grid;
+	grid-template-columns: 20% 60% 20%;
+	align-content: center;
+}
+
 .login-button {
 	position: absolute;
 	padding-top: 10px;
-	margin-left: -100px;
+	margin-left: 25px;
 }
 
 .search-bar {
 	position: absolute;
 	padding-top: 11px;
-	margin-left: 150px;
+	margin-left: 275px;
+}
+
+.add-video-button {
+	position: absolute;
+	margin-top: -35px;
+	margin-left: 1035px;
 }
 
 .search-button {
 	postition: absolute;
 	padding-top: 14px;
-	margin-left: 660px;
+	margin-left: 785px;
+}
+
+.user-header {
+	padding-top: 10px;
+	width: 50%;
+	margin: auto;
+	text-align: center;
+}
+
+.user-info {
+	width: 50%;
+	margin-left: 39%;
+	text-align: center;
 }
