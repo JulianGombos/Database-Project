@@ -14,6 +14,14 @@ public class Comedian {
 		this.birthPlace = "null";
 	}
 	
+	public Comedian(int comid, String firstName, String lastName, String birthday, String birthPlace) {
+		this.comid = comid;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.birthday = birthday;
+		this.birthPlace = birthPlace;
+	}
+	
 	public Comedian(String firstName, String lastName, String birthday, String birthPlace) {
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -60,14 +68,4 @@ public class Comedian {
 	public void setBirthPlace(String birthPlace) {
 		this.birthPlace = birthPlace;
 	}
-
-	public Comedian(int comid, String firstName, String lastName, String birthday, String birthPlace) {
-		this.comid = comid;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.birthday = birthday;
-		this.birthPlace = birthPlace;
-	}
-	
-	
 }

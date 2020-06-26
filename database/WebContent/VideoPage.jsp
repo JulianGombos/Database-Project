@@ -57,7 +57,7 @@
 		<div class="review-block">
 			<form action="writeReview" method="POST">
 				<div>
-					<textarea id="review" name="review" rows="5" cols="50"required>Write a Review</textarea>
+					<textarea id="review" name="review" rows="5" cols="50" placeholder="Write a Review" required></textarea>
 					<label>Rating</label>
 					<select name = "rating">
 						<option value="P">Poor</option>

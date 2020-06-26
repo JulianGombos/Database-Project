@@ -75,6 +75,12 @@ public class ControlServlet extends HttpServlet {
             case "/videoaddfavorite":
             	videoAddToFavorite(request, response);
             	break;
+            case "/toaddvideo":
+            	toAddVideo(request, response);
+            	break;
+            case "/addcomedian":
+            	addComedian(request, response);
+            	break;
             default:          	
             	userLogin(request, response);           	
                 break;
@@ -153,8 +159,8 @@ public class ControlServlet extends HttpServlet {
     	String title = request.getParameter("Title");
     	String description = request.getParameter("Description");
     	String tags = request.getParameter("Tags");
-    	String nameComedian = request.getParameter("comedianName");
-    	peopleDAO.insertVideo(userName, url, title, description, tags, nameComedian);
+    	String comid = request.getParameter("comid");
+    	peopleDAO.insertVideo(userName, url, title, description, tags, comid);
     	response.sendRedirect("UserHomePage.jsp");
     	
     }
@@ -267,5 +273,21 @@ public class ControlServlet extends HttpServlet {
     	request.setAttribute("videoData", newVideo);
     	RequestDispatcher dispatcher = request.getRequestDispatcher("VideoPage.jsp");
     	dispatcher.forward(request, response);
+    }
+    
+    private void toAddVideo(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	List<Comedian> comedians = peopleDAO.getAllComedians();
+    	request.setAttribute("comedians", comedians);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("AddVideo.jsp");
+    	dispatcher.forward(request, response);
+    }
+    
+    private void addComedian(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	Comedian newComedian = new Comedian(Integer.parseInt(request.getParameter("comid")), request.getParameter("firstName"), 
+    			request.getParameter("lastName"), request.getParameter("birthday"), request.getParameter("birthPlace"));
+    	peopleDAO.insertComedian(newComedian);
+    	response.sendRedirect("AddComedian.jsp");
     }
 }

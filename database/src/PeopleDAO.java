@@ -178,7 +178,7 @@ public class PeopleDAO {
         disconnect();        
         return listOfUsers;
     }
-    public void insertVideo(String userName, String link, String videoTitle, String videoDescription, String videoTags, String nameComedian) throws SQLException{
+    public void insertVideo(String userName, String link, String videoTitle, String videoDescription, String videoTags, String comid) throws SQLException{
     	connect_func();
     	
     	
@@ -213,7 +213,8 @@ public class PeopleDAO {
         	if (numberOfVideos < 5) { // if video posts in a day are less than 5 then continue adding video
         		// This line of code is going to extract the comid from the comedian table based on
             	// the nameComedian string which holds the comedians last name which is used to search for 
-            	// comid in the comedian table. 
+            	// comid in the comedian table.
+        		/*
             	String comedianID = "SELECT comid FROM comedians WHERE LastName ='"+ nameComedian +"'";
             	ResultSet comedianName = statement.executeQuery(comedianID);
             	int id = 0;
@@ -224,6 +225,7 @@ public class PeopleDAO {
                		System.out.println("Comedian id was not found");
                		return;
                	}
+            	*/
             	// This line of code is to insert video into youtubevideos table
             	String insert = "INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) "
             			+ "VALUES (?, ?, ?, ?, ?, ?)";
@@ -231,7 +233,7 @@ public class PeopleDAO {
             	preparedStatement.setString(1, link);
             	preparedStatement.setString(2, videoTitle);
             	preparedStatement.setString(3, videoDescription);
-            	preparedStatement.setInt(4, id);
+            	preparedStatement.setString(4, comid);
             	preparedStatement.setString(5, userName);
             	preparedStatement.setString(6, dateString);
             	preparedStatement.executeUpdate();
@@ -501,5 +503,40 @@ public class PeopleDAO {
             disconnect();
             return false;
     	}
+    }
+    
+    public List<Comedian> getAllComedians() throws SQLException{
+    	List<Comedian> comedians = new ArrayList<Comedian>();
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM comedians";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+    	while(resultSet.next()) {
+    		comedians.add(new Comedian(Integer.parseInt(resultSet.getString("comid")), resultSet.getString("FirstName"), resultSet.getString("LastName"), 
+    				resultSet.getString("Birthday"), resultSet.getString("BirthPlace")));
+    	}
+        resultSet.close();
+    	statement.close();
+    	disconnect();
+    	return comedians;
+    }
+    
+    public void insertComedian(Comedian newComedian) throws SQLException{
+    	connect_func();
+    	
+    	String insert = "INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) "
+    			+ "VALUES (?, ?, ?, ?, ?)";
+
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(insert);
+    	preparedStatement.setString(1, Integer.toString(newComedian.comid));
+    	preparedStatement.setString(2, newComedian.firstName);
+    	preparedStatement.setString(3, newComedian.lastName);
+    	preparedStatement.setString(4, newComedian.birthday);
+    	preparedStatement.setString(5, newComedian.birthPlace);
+    	preparedStatement.executeUpdate();
+    	preparedStatement.close();
+    	disconnect();
     }
 }

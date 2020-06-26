@@ -11,14 +11,24 @@
 	
 <title>Upload Video</title>
 
+	<style type="text/css">
+		<%@include file="stylesheets/addvideopage.css" %>
+    </style>
+
 </head>
 <body>
-
-<h1>Upload Video</h1>
-<h2><a href="UserHomePage.jsp">Back to User Home Page</a></h2>
-
+	<div class="topnavbar">
+			<div class="container2">
+				<div class="login-button">
+					<a href="UserHomePage.jsp" class="btn btn-light" role="button" aria-pressed="true">Home Page</a>
+				</div>
+				<div class="page-title">
+					Upload a New Video to the Database
+				</div>
+			</div>
+		</div>
 	<form action="upload" method="POST">
-		<div align="center">
+		<div align="center" style="padding-top: 20px">
 			<label>URL</label>
 			<input type="text" name="URL" placeholder="YouTube link" required>
 		</div>
@@ -38,18 +48,19 @@
 		<br>
 		<div align="center">
 			<label>Tags</label>
-			<input type="text" name="Tags" required>
+			<input type="text" name="Tags" placeholder="Tag1, Tag2, ..." required>
 		</div>
 		
 		<br>
 		<div align="center">
-			<label>Comedian Name</label>
-			<input type="text" name="comedianName" required>
+			<label for="comedians">Choose a Comedian: </label>
+			<select name="comid" id="comid">
+			<c:forEach var="result" items="${comedians}">
+				<option value="<c:out value="${result.comid}" />"><c:out value="${result.firstName} ${result.lastName }" /></option>
+			</c:forEach>
+			</select>
+          	<button class="btn btn-primary btn-sm" type="submit">Add</button>
 		</div>
-		<div align="center">
-		<input type="submit" name="submit" value="Submit">
-		</div>
-		
 	</form>
 </body>
 </html>

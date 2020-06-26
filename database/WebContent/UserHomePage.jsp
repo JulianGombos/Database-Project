@@ -16,55 +16,86 @@
 
 </head>
 	<body>
-		<% if(session == null){ response.sendRedirect("LoginForm.jsp");}%>
-		<div class="topnavbar">
-			<div class="container2">
-				<div class="login-button">
-					<a href="LoginForm.jsp" class="btn btn-light" role="button" aria-pressed="true">Sign Out</a>
-				</div>
-				<form action="search" method="get">
-					<div class="search-bar">
-						<div class="input-group flex-nowrap">
-							<input type="text" style="width: 500px" class="form-control" name="search" placeholder="Search by comedian name or tags" aria-label="Username" aria-describedby="addon-wrapping" required>
+		<div style="display:${isRoot ? 'none' : 'block'}">
+			<% if(session == null){ response.sendRedirect("LoginForm.jsp");}%>
+			<div class="topnavbar">
+				<div class="container2">
+					<div class="login-button">
+						<a href="LoginForm.jsp" class="btn btn-light" role="button" aria-pressed="true">Sign Out</a>
+					</div>
+					<form action="search" method="get">
+						<div class="search-bar">
+							<div class="input-group flex-nowrap">
+								<input type="text" style="width: 500px" class="form-control" name="search" placeholder="Search by comedian name or tags" aria-label="Username" aria-describedby="addon-wrapping" required>
+							</div>
 						</div>
-					</div>
-					<div class="search-button">
-						<button class="btn btn-secondary btn-sm active" type="submit">Search</button>
-					</div>
-				</form>
-				<div class="add-video-button">
-					<a href="AddVideo.jsp" class="btn btn-primary" role="button" aria-pressed="true">Upload Video</a>
+						<div class="search-button">
+							<button class="btn btn-secondary btn-sm active" type="submit">Search</button>
+						</div>
+					</form>
+					<form action="toaddvideo" method="get">
+						<div class="add-video-button">
+							<button class="btn btn-primary btn-sm active" type="submit">Upload Video</button>
+						</div>
+					</form>
 				</div>
-			</div>
-		</div>
-		<div class="user-header">
-			<div style="font-size: 20px; font-weight: bold;">
-				Welcome <c:out value="${user.firstName}" /> <c:out value="${user.lastName}" />!
-			</div>
-		</div>
-			<div class="user-info">
-				<table>
-					<tr>
-						<td>Username: </td>
-						<td><c:out value="${user.username}" /></td>
-					</tr>
-					<tr>
-						<td>Password: </td>
-						<td><c:out value="${user.password}" /></td>
-					</tr>
-					<tr>
-						<td>Age: </td>
-						<td><c:out value="${isRoot ? '' : user.age}" /></td>
-					</tr>
-				</table>
 			</div>
 			<div class="user-header">
-				<hr>
+				<div style="font-size: 20px; font-weight: bold;">
+					Welcome <c:out value="${user.firstName}" /> <c:out value="${user.lastName}" />!
+				</div>
 			</div>
-		<div style="padding-top: 20px; padding-left: 10px">
-			<form action="favoritelist" method="get">
-				<button class="btn btn-primary btn-lg active" type="submit">Display Favorite Comedians</button>
-			</form>
+				<div class="user-info">
+					<table>
+						<tr>
+							<td>Username: </td>
+							<td><c:out value="${user.username}" /></td>
+						</tr>
+						<tr>
+							<td>Password: </td>
+							<td><c:out value="${user.password}" /></td>
+						</tr>
+						<tr>
+							<td>Age: </td>
+							<td><c:out value="${isRoot ? '' : user.age}" /></td>
+						</tr>
+					</table>
+				</div>
+				<div class="user-header">
+					<hr>
+				</div>
+			<div style="padding-top: 20px; padding-left: 10px">
+				<form action="favoritelist" method="get">
+					<button class="btn btn-primary btn-lg active" type="submit">Display Favorite Comedians</button>
+				</form>
+			</div>
+		</div>
+		<!-- ------------------------USER^-------------------------------------------------------------------------------------------------- -->
+		<div style="display:${isRoot ? 'block' : 'none'}" align="center">
+			<div class="topnavbar">
+					<div class="container2">
+						<div class="login-button">
+							<a href="LoginForm.jsp" class="btn btn-light" role="button" aria-pressed="true">Sign Out</a>
+						</div>
+					</div>
+				</div>
+			<h2>Admin Functions</h2>
+			<table>
+				<tr>
+					<td>
+						<button onclick="document.location = 'DropTables.jsp'">Initialize Database</button>
+					</td>
+					<td>
+						<form action="list" method="get">
+							<button type="submit">View Registered Users</button>
+						</form>
+					</td>
+					<td><button onclick="document.location = 'AddComedian.jsp'">Insert A Comedian</button></td>
+					<td><button>Insert A User</button></td>
+					<td><button>Edit A User</button></td>
+					<td><button>Delete Registered User</button></td>
+				</tr>
+			</table>
 		</div>
 	</body>
 </html>
