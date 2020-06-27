@@ -1,4 +1,3 @@
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.DriverManager;
@@ -24,11 +23,8 @@ public class PeopleDAO {
 	private Connection connect = null;
 	private Statement statement = null;
 	private PreparedStatement preparedStatement = null;
-	private ResultSet resultSet = null;
 	
-	public PeopleDAO() {
-
-    }
+	public PeopleDAO() {}
 	       
     /**
      * @see HttpServlet#HttpServlet()
@@ -128,9 +124,18 @@ public class PeopleDAO {
     public void dropAllTables() throws SQLException{
     	connect_func();
     	
-    	String dropSQL = "DROP TABLE user";
-    	String createUserTable = "CREATE TABLE user (Username CHAR(50), Password CHAR(20), FirstName CHAR(50), LastName CHAR(50), Age INTEGER, PRIMARY KEY(Username))";
+    	String[] dropStatements = {"DROP TABLE isfavorite", "DROP TABLE youtubetags", "DROP TABLE reviews", "DROP TABLE youtubevideos",
+    			"DROP TABLE comedians", "DROP TABLE user"};
+    	
+    	String[] createStatements = {"CREATE TABLE user (Username CHAR(50), Password CHAR(20), FirstName CHAR(50), LastName CHAR(50), Age INTEGER, PRIMARY KEY(Username))",
+					"CREATE TABLE comedians (comid INTEGER, FirstName VARCHAR(50), LastName VARCHAR(50), Birthday DATE, BirthPlace VARCHAR(50), PRIMARY KEY(comid))",
+					"CREATE TABLE youtubevideos (url VARCHAR(150), Title VARCHAR(50), VideoDescription VARCHAR(200), comid INTEGER, PostUser VARCHAR(50), PostDate DATE, PRIMARY KEY (url), FOREIGN KEY (comid) REFERENCES comedians(comid))",
+					"CREATE TABLE reviews (reviewid INTEGER NOT NULL auto_increment, Remark VARCHAR(100), Rating CHAR(1), Author VARCHAR(50) NOT NULL, Youtubeid VARCHAR(150) NOT NULL, PRIMARY KEY (reviewid), FOREIGN KEY (Youtubeid) REFERENCES YoutubeVideos(url), CONSTRAINT RatingCheck CHECK (Rating IN ('P', 'F', 'G', 'E')))",
+					"CREATE TABLE youtubetags (url VARCHAR(150), Tag VARCHAR(50), PRIMARY KEY(url, Tag))",
+    				"CREATE TABLE isfavorite (Username VARCHAR(50), comid INTEGER, PRIMARY KEY (Username, comid), FOREIGN KEY (comid) REFERENCES Comedians (comid))"};
+    	
     	String addRootUser = "INSERT INTO user(Username, Password) VALUES ('root','pass1234')";
+    	
     	String[] users = {"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user1', 'pass1', 'user1First', 'user1Last', 1)",
     			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user2', 'pass2', 'user2First', 'user2Last', 2)",
     			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user3', 'pass3', 'user3First', 'user3Last', 3)",
@@ -143,14 +148,56 @@ public class PeopleDAO {
     			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user10', 'pass10', 'user10First', 'user10Last', 10)"
     			};
     	
+    	String[] comedians = {"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (1, 'Dane', 'Cook', '1972-03-18', 'Cambridge, MA')",
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (2, 'Gabriel', 'Iglesias', '1976-07-15', 'San Diego, CA')",
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (3, 'Bill', 'Burr', '1968-06-10', 'Canton, MA')", 
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (4, 'Chris', 'Rock', '1965-02-07', 'Andrews, SC')", 
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (5, 'Sebastian', 'Maniscalco', '1973-07-08', 'Arlington Heights, IL')",
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (6, 'George', 'Lopez', '1961-04-23', 'Los Angeles, CA')", 
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (7, 'Kevin', 'Hart', '1979-07-06', 'Philadelphia, PA')", 
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (8, 'Dave', 'Chappelle', '1973-08-24', 'Washington, D.C.')"
+    			};
+    	
+    	String[] videos = {"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=YDkOZaolWQE', 'Hot and Fluffy', 'Gabriel Iglesias is one of the fastest rising comics today!', 2, 'user1', '2020-06-26')",
+    			"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=x2X6I4LShac', 'What was your favorite mix tape name?', 'My First special ‘Sebastian LIVE!’ Is now available on @amazonprime.', 5, 'user7', '2020-06-26')",
+    			"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=JxhG3H2-EIE', 'For What Its Worth', 'Full video. stand up comedy', 8, 'user2', '2020-06-26')",
+    			"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=1h5sRgW6sQY', 'Bad Apple Metaphor', 'Chris Rocks bad apple metaphor for bad cops.', 4, 'user2', '2020-06-26')",
+    			"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=NBO3vF8p0J0', 'Netflix Is A Joke', 'Kevin Hart shows all of his cards in his very own hilarious and ridiculous way as he talks about getting kicked in the face.', 7, 'user5', '2020-06-26')",
+    			"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=iIp93sEmzQM', 'Has anyone been to the gym lately?', 'STAY HUNGRY Special on @Netflix Is A Joke', 5, 'user6', '2020-06-26')"
+    			};
+    	
+    	String[] tags = {"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=YDkOZaolWQE', 'fluffy, hot')",
+    			"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=x2X6I4LShac', 'mixtape')",
+    			"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=JxhG3H2-EIE', 'worth')",
+    			"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=1h5sRgW6sQY', 'bad, apple, cops')",
+    			"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=NBO3vF8p0J0', 'netflix, face')",
+    			"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=iIp93sEmzQM', 'gym')"};
+    	
     	statement = (Statement) connect.createStatement();
-    	statement.execute(dropSQL);
-    	statement.execute(createUserTable);
+    	
+    	for(int i = 0; i < dropStatements.length; i++) {
+    		statement.execute(dropStatements[i]);
+    	}
+    	
+    	for(int i = 0; i < createStatements.length; i++) {
+    		statement.execute(createStatements[i]);
+    	}
+    	
     	statement.execute(addRootUser);
     	
     	for(int i = 0; i < 10; i++) {
     		statement.execute(users[i]);
     	}
+    	
+    	for(int i = 0; i < comedians.length; i++) {
+    		statement.execute(comedians[i]);
+    	}
+    	
+    	for(int i = 0; i < videos.length; i++) {
+    		statement.execute(videos[i]);
+    		statement.execute(tags[i]);
+    	}
+    	
     	statement.close();
     	disconnect();
     }
@@ -182,7 +229,7 @@ public class PeopleDAO {
         disconnect();        
         return listOfUsers;
     }
-    public void insertVideo(String userName, String link, String videoTitle, String videoDescription, String videoTags, String nameComedian) throws SQLException{
+    public void insertVideo(String userName, String link, String videoTitle, String videoDescription, String videoTags, String comid) throws SQLException{
     	connect_func();
     	
     	
@@ -217,17 +264,7 @@ public class PeopleDAO {
         	if (numberOfVideos < 5) { // if video posts in a day are less than 5 then continue adding video
         		// This line of code is going to extract the comid from the comedian table based on
             	// the nameComedian string which holds the comedians last name which is used to search for 
-            	// comid in the comedian table. 
-            	String comedianID = "SELECT comid FROM comedians WHERE LastName ='"+ nameComedian +"'";
-            	ResultSet comedianName = statement.executeQuery(comedianID);
-            	int id = 0;
-            	if (comedianName.next()) {
-            		id = comedianName.getInt("comid");
-                	System.out.println("Comedian id: " + id);
-               	}else {
-               		System.out.println("Comedian id was not found");
-               		return;
-               	}
+            	// comid in the comedian table.
             	// This line of code is to insert video into youtubevideos table
             	String insert = "INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) "
             			+ "VALUES (?, ?, ?, ?, ?, ?)";
@@ -235,7 +272,7 @@ public class PeopleDAO {
             	preparedStatement.setString(1, link);
             	preparedStatement.setString(2, videoTitle);
             	preparedStatement.setString(3, videoDescription);
-            	preparedStatement.setInt(4, id);
+            	preparedStatement.setString(4, comid);
             	preparedStatement.setString(5, userName);
             	preparedStatement.setString(6, dateString);
             	preparedStatement.executeUpdate();
@@ -264,53 +301,281 @@ public class PeopleDAO {
     	
     }
     
-    public void insertReview(String userName, String remark, String rating) throws SQLException{
+    public List<YoutubeVideo> getSearchResults(String userInput) throws SQLException {
+    	connect_func();
+    	List<YoutubeVideo> searchResults = new ArrayList<YoutubeVideo>();
+    	String sql;
+    	if(userInput.contains(" ")) {
+    		String[] query = userInput.split(" ");
+    		String first = query[0];
+    		String second = query[1];
+    		sql= "SELECT comid FROM comedians WHERE FirstName='" + first + "' OR FirstName='" + second + "' OR LastName='" + first + "' OR LastName='" + second + "'";
+    	}else if(userInput.contains(",")){
+    		String[] query = userInput.split(",");
+    		sql = "SELECT url FROM youtubetags WHERE Tag LIKE '%" + query[0] + "%' ";
+    		for(int i = 1; i < query.length; i++) {
+    			sql.concat("OR Tag LIKE '%" + query[i] +"%' ");
+    		}
+    		
+    		statement =  (Statement) connect.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            
+            while(resultSet.next()) {
+            	String sql2 = "SELECT * FROM youtubevideos WHERE url='" + resultSet.getString("url") + "'";
+            	Statement statement2 =  (Statement) connect.createStatement();
+                ResultSet videoResultSet = statement2.executeQuery(sql2);
+                while(videoResultSet.next()) {
+        			YoutubeVideo video = new YoutubeVideo(videoResultSet.getString("url"), videoResultSet.getString("Title"), videoResultSet.getString("PostUser"));
+        			searchResults.add(video);
+        		}
+            }
+            
+            resultSet.close();
+        	statement.close();         
+            disconnect();
+        	return searchResults;
+    		
+    	}else {
+    		sql = "SELECT comid FROM comedians WHERE FirstName='" + userInput + "' OR LastName='" + userInput + "'";
+    	}
+    	
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+        List<String> comids = new ArrayList<String>(); 
+        while(resultSet.next()) {
+        	comids.add(resultSet.getString("comid"));
+        }
+        
+        for(int i = 0; i < comids.size();i++) {
+        	String sql2 = "SELECT * FROM youtubevideos WHERE comid='" + comids.get(i) + "'";
+    		ResultSet videoResultSet = statement.executeQuery(sql2);
+    		while(videoResultSet.next()) {
+    			YoutubeVideo video = new YoutubeVideo(videoResultSet.getString("url"), videoResultSet.getString("Title"), videoResultSet.getString("PostUser"));
+    			searchResults.add(video);
+    		}
+        }
+    	resultSet.close();
+    	statement.close();         
+        disconnect();
+    	return searchResults;
+    }
+    
+    public List<Comedian> getAllComediansNotInFavorite(String givenUsername) throws SQLException{
+    	List<Comedian> allComedians = new ArrayList<Comedian>();
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM comedians WHERE comid NOT IN (SELECT comid FROM isfavorite WHERE Username='" + givenUsername +"')";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet comedianResultSet = statement.executeQuery(sql);
+        
+        while(comedianResultSet.next()) {
+        	allComedians.add(new Comedian(Integer.parseInt(comedianResultSet.getString("comid")), comedianResultSet.getString("FirstName"), comedianResultSet.getString("LastName"), 
+        			comedianResultSet.getString("Birthday"), comedianResultSet.getString("BirthPlace")));
+        }
+        comedianResultSet.close();
+        statement.close();
+        disconnect();
+    	return allComedians;
+    }
+    
+    public List<Comedian> getFavoriteList(String givenUsername) throws SQLException{
+    	List<Comedian> favoriteList = new ArrayList<Comedian>(); 
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM isfavorite WHERE Username='" + givenUsername + "'";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+        
+        List<String> comids = new ArrayList<String>(); 
+        while(resultSet.next()) {
+        	comids.add(resultSet.getString("comid"));
+        }
+        
+        for(int i = 0; i < comids.size();i++) {
+        	String sql2 = "SELECT * FROM comedians WHERE comid='" + comids.get(i) + "'";
+        	ResultSet comedianResultSet = statement.executeQuery(sql2);
+        	
+        	comedianResultSet.next(); 
+    		favoriteList.add(new Comedian(Integer.parseInt(comedianResultSet.getString("comid")), comedianResultSet.getString("FirstName"), comedianResultSet.getString("LastName"), 
+    			comedianResultSet.getString("Birthday"), comedianResultSet.getString("BirthPlace")));
+        }
+        resultSet.close();
+    	statement.close();
+        disconnect();        
+        return favoriteList;
+    }
+    
+    public void deleteFromFavorite(String username, String comid) throws SQLException{
+    	
+    	String sql = "DELETE FROM isfavorite WHERE Username='" + username + "' AND comid='" + comid + "'";
+    	
+    	connect_func();
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+    	
+    	preparedStatement.close();
+    	disconnect();
+    }
+    
+    public void addToFavorite(String username, String comid) throws SQLException{
+    	
+    	String sql = "INSERT INTO isfavorite (Username, comid) VALUES ('" + username + "', '" + comid + "')";
+    	
+    	connect_func();
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+        
+        preparedStatement.close();
+    	disconnect();
+    }
+    
+    public void insertReview(String userName, String remark, String rating, String url) throws SQLException{
     	connect_func();
     	
     	// This line of code is to insert review into reviews table
     	String insert = "INSERT INTO reviews(Remark, Rating, Author, Youtubeid) "
     			+ "VALUES (?, ?, ?, ?)";
-    	String youtubeidtemp = "ignore";
+
     	preparedStatement = (PreparedStatement) connect.prepareStatement(insert);
     	preparedStatement.setString(1, remark);
     	preparedStatement.setString(2, rating);
     	preparedStatement.setString(3, userName);
-    	preparedStatement.setString(4, youtubeidtemp);
+    	preparedStatement.setString(4, url);
     	preparedStatement.executeUpdate();
     	preparedStatement.close();
     	disconnect();
 
     }
-
-}
-/*
     
-    public boolean delete(int peopleid) throws SQLException {
-        String sql = "DELETE FROM student WHERE id = ?";        
-        connect_func();
-         
-        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-        preparedStatement.setInt(1, peopleid);
-         
-        boolean rowDeleted = preparedStatement.executeUpdate() > 0;
-        preparedStatement.close();
-//        disconnect();
-        return rowDeleted;     
-    }
-     
-    public boolean update(People people) throws SQLException {
-        String sql = "update student set Name=?, Address =?,Status = ? where id = ?";
-        connect_func();
+    public List<Review> getAllReviews(String url) throws SQLException{
+    	List<Review> allReviews = new ArrayList<Review>();
+    	
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM reviews WHERE Youtubeid='" + url + "'";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
         
-        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-        preparedStatement.setString(1, people.name);
-        preparedStatement.setString(2, people.address);
-        preparedStatement.setString(3, people.status);
-        preparedStatement.setInt(4, people.id);
-         
-        boolean rowUpdated = preparedStatement.executeUpdate() > 0;
-        preparedStatement.close();
-//        disconnect();
-        return rowUpdated;     
+        while(resultSet.next()) {
+        	allReviews.add(new Review(resultSet.getString("Author"), resultSet.getString("Remark")));
+        }
+        
+        resultSet.close();
+        statement.close();
+        disconnect();
+        return allReviews;
     }
-    */
+    
+    public boolean getHasReview(String url, User user) throws SQLException{
+    	connect_func();
+    	
+    	String sql="SELECT * FROM reviews WHERE Author='" + user.username +"' AND Youtubeid='" + url + "'";
+    	statement = (Statement)connect.createStatement();
+    	ResultSet resultSet = statement.executeQuery(sql);
+    	
+    	if(resultSet.next()) {
+    		resultSet.close();
+    		statement.close();
+    		disconnect();
+    		return true;
+    	}else {
+    		resultSet.close();
+    		statement.close();
+    		disconnect();
+    		return false;
+    	}
+    	
+    }
+    
+    public void videoAddToFavorite(String username, String url) throws SQLException{
+    	connect_func();
+    	
+    	String sql= "SELECT comid FROM youtubevideos WHERE url='" + url + "'";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+    	resultSet.next();
+    	
+    	String sql2 = "INSERT INTO isfavorite (Username, comid) VALUES ('" + username + "', '" + resultSet.getString("comid") + "')";
+    	
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql2);
+        preparedStatement.executeUpdate();
+        
+        preparedStatement.close();
+        resultSet.close();
+        statement.close();
+        disconnect();
+    }
+    
+    public YoutubeVideo getVideo(String url) throws SQLException {
+    	connect_func();
+    	
+    	String sql= "SELECT * FROM youtubevideos WHERE url='" + url + "'";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+    	resultSet.next();
+    	
+        YoutubeVideo videoData = new YoutubeVideo(resultSet.getString("url"), resultSet.getString("Title"), resultSet.getString("VideoDescription"),
+        		Integer.parseInt(resultSet.getString("comid")), resultSet.getString("PostUser"), resultSet.getDate("PostDate"));
+    	
+        resultSet.close();
+        statement.close();
+        disconnect();
+        
+        return videoData;
+    }
+    
+    public boolean isFavorite(String username, String comid) throws SQLException{
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM isfavorite WHERE Username='" + username + "' AND comid='" + comid + "'";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+    	if(resultSet.next()) {
+    		resultSet.close();
+            statement.close();
+            disconnect();
+    		return true;
+    	}else {
+    		resultSet.close();
+            statement.close();
+            disconnect();
+            return false;
+    	}
+    }
+    
+    public List<Comedian> getAllComedians() throws SQLException{
+    	List<Comedian> comedians = new ArrayList<Comedian>();
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM comedians";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+    	while(resultSet.next()) {
+    		comedians.add(new Comedian(Integer.parseInt(resultSet.getString("comid")), resultSet.getString("FirstName"), resultSet.getString("LastName"), 
+    				resultSet.getString("Birthday"), resultSet.getString("BirthPlace")));
+    	}
+        resultSet.close();
+    	statement.close();
+    	disconnect();
+    	return comedians;
+    }
+    
+    public void insertComedian(Comedian newComedian) throws SQLException{
+    	connect_func();
+    	
+    	String insert = "INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) "
+    			+ "VALUES (?, ?, ?, ?, ?)";
+
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(insert);
+    	preparedStatement.setString(1, Integer.toString(newComedian.comid));
+    	preparedStatement.setString(2, newComedian.firstName);
+    	preparedStatement.setString(3, newComedian.lastName);
+    	preparedStatement.setString(4, newComedian.birthday);
+    	preparedStatement.setString(5, newComedian.birthPlace);
+    	preparedStatement.executeUpdate();
+    	preparedStatement.close();
+    	disconnect();
+    }
+}

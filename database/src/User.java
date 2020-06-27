@@ -5,6 +5,7 @@ public class User {
 	protected String password;
 	protected String firstName;
 	protected String lastName;
+	protected char gender;
 	protected int age;
 
 	public User() {
@@ -12,6 +13,7 @@ public class User {
 		this.password = "null";
 		this.firstName = "null";
 		this.lastName = "null";
+		this.gender = 'n';
 		this.age = 0;
 	}
 	

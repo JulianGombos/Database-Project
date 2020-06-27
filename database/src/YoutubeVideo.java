@@ -25,6 +25,14 @@ public class YoutubeVideo {
 		this.postUser = postUser;
 	}
 	
+	YoutubeVideo(String url, String title, String videoDescription, String postUser, Date postDate){
+		this.url = url;
+		this.title = title;
+		this.videoDescription = videoDescription;
+		this.postUser = postUser;
+		this.postDate = postDate;
+	}
+	
 	//Constructor used for adding new videos to database
 	YoutubeVideo(String url, String title, String videoDescription, int comid, String postUser, Date postDate){
 		this.url = url;
