@@ -124,9 +124,18 @@ public class PeopleDAO {
     public void dropAllTables() throws SQLException{
     	connect_func();
     	
-    	String dropSQL = "DROP TABLE user";
-    	String createUserTable = "CREATE TABLE user (Username CHAR(50), Password CHAR(20), FirstName CHAR(50), LastName CHAR(50), Age INTEGER, PRIMARY KEY(Username))";
+    	String[] dropStatements = {"DROP TABLE isfavorite", "DROP TABLE youtubetags", "DROP TABLE reviews", "DROP TABLE youtubevideos",
+    			"DROP TABLE comedians", "DROP TABLE user"};
+    	
+    	String[] createStatements = {"CREATE TABLE user (Username CHAR(50), Password CHAR(20), FirstName CHAR(50), LastName CHAR(50), Age INTEGER, PRIMARY KEY(Username))",
+					"CREATE TABLE comedians (comid INTEGER, FirstName VARCHAR(50), LastName VARCHAR(50), Birthday DATE, BirthPlace VARCHAR(50), PRIMARY KEY(comid))",
+					"CREATE TABLE youtubevideos (url VARCHAR(150), Title VARCHAR(50), VideoDescription VARCHAR(200), comid INTEGER, PostUser VARCHAR(50), PostDate DATE, PRIMARY KEY (url), FOREIGN KEY (comid) REFERENCES comedians(comid))",
+					"CREATE TABLE reviews (reviewid INTEGER NOT NULL auto_increment, Remark VARCHAR(100), Rating CHAR(1), Author VARCHAR(50) NOT NULL, Youtubeid VARCHAR(150) NOT NULL, PRIMARY KEY (reviewid), FOREIGN KEY (Youtubeid) REFERENCES YoutubeVideos(url), CONSTRAINT RatingCheck CHECK (Rating IN ('P', 'F', 'G', 'E')))",
+					"CREATE TABLE youtubetags (url VARCHAR(150), Tag VARCHAR(50), PRIMARY KEY(url, Tag))",
+    				"CREATE TABLE isfavorite (Username VARCHAR(50), comid INTEGER, PRIMARY KEY (Username, comid), FOREIGN KEY (comid) REFERENCES Comedians (comid))"};
+    	
     	String addRootUser = "INSERT INTO user(Username, Password) VALUES ('root','pass1234')";
+    	
     	String[] users = {"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user1', 'pass1', 'user1First', 'user1Last', 1)",
     			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user2', 'pass2', 'user2First', 'user2Last', 2)",
     			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user3', 'pass3', 'user3First', 'user3Last', 3)",
@@ -139,14 +148,56 @@ public class PeopleDAO {
     			"INSERT INTO user(Username, Password, FirstName, LastName, Age) VALUES ('user10', 'pass10', 'user10First', 'user10Last', 10)"
     			};
     	
+    	String[] comedians = {"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (1, 'Dane', 'Cook', '1972-03-18', 'Cambridge, MA')",
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (2, 'Gabriel', 'Iglesias', '1976-07-15', 'San Diego, CA')",
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (3, 'Bill', 'Burr', '1968-06-10', 'Canton, MA')", 
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (4, 'Chris', 'Rock', '1965-02-07', 'Andrews, SC')", 
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (5, 'Sebastian', 'Maniscalco', '1973-07-08', 'Arlington Heights, IL')",
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (6, 'George', 'Lopez', '1961-04-23', 'Los Angeles, CA')", 
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (7, 'Kevin', 'Hart', '1979-07-06', 'Philadelphia, PA')", 
+    			"INSERT INTO comedians(comid, FirstName, LastName, Birthday, BirthPlace) VALUES (8, 'Dave', 'Chappelle', '1973-08-24', 'Washington, D.C.')"
+    			};
+    	
+    	String[] videos = {"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=YDkOZaolWQE', 'Hot and Fluffy', 'Gabriel Iglesias is one of the fastest rising comics today!', 2, 'user1', '2020-06-26')",
+    			"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=x2X6I4LShac', 'What was your favorite mix tape name?', 'My First special ‘Sebastian LIVE!’ Is now available on @amazonprime.', 5, 'user7', '2020-06-26')",
+    			"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=JxhG3H2-EIE', 'For What Its Worth', 'Full video. stand up comedy', 8, 'user2', '2020-06-26')",
+    			"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=1h5sRgW6sQY', 'Bad Apple Metaphor', 'Chris Rocks bad apple metaphor for bad cops.', 4, 'user2', '2020-06-26')",
+    			"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=NBO3vF8p0J0', 'Netflix Is A Joke', 'Kevin Hart shows all of his cards in his very own hilarious and ridiculous way as he talks about getting kicked in the face.', 7, 'user5', '2020-06-26')",
+    			"INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) VALUES ('https://www.youtube.com/watch?v=iIp93sEmzQM', 'Has anyone been to the gym lately?', 'STAY HUNGRY Special on @Netflix Is A Joke', 5, 'user6', '2020-06-26')"
+    			};
+    	
+    	String[] tags = {"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=YDkOZaolWQE', 'fluffy, hot')",
+    			"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=x2X6I4LShac', 'mixtape')",
+    			"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=JxhG3H2-EIE', 'worth')",
+    			"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=1h5sRgW6sQY', 'bad, apple, cops')",
+    			"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=NBO3vF8p0J0', 'netflix, face')",
+    			"INSERT INTO youtubetags(url, Tag) VALUES ('https://www.youtube.com/watch?v=iIp93sEmzQM', 'gym')"};
+    	
     	statement = (Statement) connect.createStatement();
-    	statement.execute(dropSQL);
-    	statement.execute(createUserTable);
+    	
+    	for(int i = 0; i < dropStatements.length; i++) {
+    		statement.execute(dropStatements[i]);
+    	}
+    	
+    	for(int i = 0; i < createStatements.length; i++) {
+    		statement.execute(createStatements[i]);
+    	}
+    	
     	statement.execute(addRootUser);
     	
     	for(int i = 0; i < 10; i++) {
     		statement.execute(users[i]);
     	}
+    	
+    	for(int i = 0; i < comedians.length; i++) {
+    		statement.execute(comedians[i]);
+    	}
+    	
+    	for(int i = 0; i < videos.length; i++) {
+    		statement.execute(videos[i]);
+    		statement.execute(tags[i]);
+    	}
+    	
     	statement.close();
     	disconnect();
     }
@@ -214,18 +265,6 @@ public class PeopleDAO {
         		// This line of code is going to extract the comid from the comedian table based on
             	// the nameComedian string which holds the comedians last name which is used to search for 
             	// comid in the comedian table.
-        		/*
-            	String comedianID = "SELECT comid FROM comedians WHERE LastName ='"+ nameComedian +"'";
-            	ResultSet comedianName = statement.executeQuery(comedianID);
-            	int id = 0;
-            	if (comedianName.next()) {
-            		id = comedianName.getInt("comid");
-                	System.out.println("Comedian id: " + id);
-               	}else {
-               		System.out.println("Comedian id was not found");
-               		return;
-               	}
-            	*/
             	// This line of code is to insert video into youtubevideos table
             	String insert = "INSERT INTO youtubevideos(url, Title, VideoDescription, comid, PostUser, PostDate) "
             			+ "VALUES (?, ?, ?, ?, ?, ?)";

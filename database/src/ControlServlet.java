@@ -150,6 +150,7 @@ public class ControlServlet extends HttpServlet {
     	RequestDispatcher dispatcher = request.getRequestDispatcher("RegisteredUsers.jsp");       
         dispatcher.forward(request, response);
     }
+    
     private void uploadVideo(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException, ServletException {
     	
@@ -164,6 +165,7 @@ public class ControlServlet extends HttpServlet {
     	response.sendRedirect("UserHomePage.jsp");
     	
     }
+    
     private void writeReview(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException, ServletException {
     	
@@ -174,11 +176,14 @@ public class ControlServlet extends HttpServlet {
     	String userName = newUser.username; 
     	String review = request.getParameter("review");
     	String rating = request.getParameter("rating");
+    	YoutubeVideo newVideo = peopleDAO.getVideo(videoUrl);
     	peopleDAO.insertReview(userName, review, rating, videoUrl);
     	boolean hasReview = peopleDAO.getHasReview(videoUrl, newUser);
+    	if(newUser.username.equals(newVideo.postUser)) {
+    		hasReview = true;
+    	}
     	String endOfUrl = videoUrl.split("=")[1];
     	List<Review> allReviews = peopleDAO.getAllReviews(videoUrl);
-    	YoutubeVideo newVideo = peopleDAO.getVideo(videoUrl);
     	boolean isFavorite = peopleDAO.isFavorite(newUser.username, Integer.toString(newVideo.comid));
     	request.setAttribute("hasReview", hasReview);
     	request.setAttribute("isFavorite", isFavorite);
@@ -244,6 +249,9 @@ public class ControlServlet extends HttpServlet {
     	YoutubeVideo newVideo = peopleDAO.getVideo(sentUrl);
     	List<Review> allReviews = peopleDAO.getAllReviews(sentUrl);
     	boolean hasReview = peopleDAO.getHasReview(sentUrl, newUser);
+    	if(newUser.username.equals(newVideo.postUser)) {
+    		hasReview = true;
+    	}
     	boolean isFavorite = peopleDAO.isFavorite(newUser.username, Integer.toString(newVideo.comid));
     	request.setAttribute("isFavorite", isFavorite);
     	request.setAttribute("hasReview", hasReview);
@@ -262,6 +270,9 @@ public class ControlServlet extends HttpServlet {
     	YoutubeVideo newVideo = peopleDAO.getVideo(sentUrl);
     	peopleDAO.videoAddToFavorite(newUser.username, sentUrl);
     	boolean hasReview = peopleDAO.getHasReview(sentUrl, newUser);
+    	if(newUser.username.equals(newVideo.postUser)) {
+    		hasReview = true;
+    	}
     	request.setAttribute("hasReview", hasReview);
     	String endOfUrl = sentUrl.split("=")[1];
     	List<Review> allReviews = peopleDAO.getAllReviews(sentUrl);
