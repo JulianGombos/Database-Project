@@ -91,9 +91,6 @@
 						</form>
 					</td>
 					<td><button onclick="document.location = 'AddComedian.jsp'">Insert A Comedian</button></td>
-					<td><button>Insert A User</button></td>
-					<td><button>Edit A User</button></td>
-					<td><button>Delete Registered User</button></td>
 				</tr>
 				<tr>
 					<td>
