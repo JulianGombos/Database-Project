@@ -33,6 +33,7 @@
 							<button class="btn btn-secondary btn-sm active" type="submit">Search</button>
 						</div>
 					</form>
+					<!-- > This code below is to upload a video -->
 					<form action="toaddvideo" method="get">
 						<div class="add-video-button">
 							<button class="btn btn-primary btn-sm active" type="submit">Upload Video</button>
@@ -116,6 +117,33 @@
 					<td>
 						<form action="samefavorites" method="get">
 							<button type="submit">Display Same Favorite Lists</button>
+						</form>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<form action="postedToday" method="get">
+							<button type="submit"> Who's New</button>
+						</form>	
+					</td>
+					<td>
+						<form action="topReview" method="get">
+							<button type="submit"> Who's Hot</button>
+						</form>
+					</td>
+					<td>
+						<form action="topTags" method="get">
+							<button type="submit"> Popular Tags</button>
+						</form>
+					</td>
+					<td>
+						<form action="excellentReviews" method="get">
+							<button type="submit"> Who's Cool</button>
+						</form>
+					</td>
+					<td>
+						<form action="mostUploads" method="get">
+							<button type="submit"> Most Productive User</button>
 						</form>
 					</td>
 				</tr>

@@ -53,8 +53,10 @@
 		</div>
 		<hr>
 	</div>
+	<!-- If user posted review already or posted the video hide the write review section -->
 	<div align="left" style="display:${hasReview ? 'none' : 'block'}; width: 650px">
 		<div class="review-block">
+			<!-- Action to write a review -->
 			<form action="writeReview" method="POST">
 				<div>
 					<textarea id="review" name="review" rows="5" cols="50" placeholder="Write a Review" required></textarea>
@@ -67,6 +69,7 @@
 					</select>
 				</div>
 				<div>
+					<!-- need to save the url link because redirecting gets rid of it -->
 					<button name="url" class="btn btn-primary btn-sm active" type="submit" value=<c:out value="${fullUrl}" />>Submit Review</button>
 				</div>
 			</form>
@@ -83,6 +86,7 @@
 			<hr>
 		</div>
 	</div>
+	<!-- Used to display all the comments of the youtube video -->
 	<div class="comments">
 		<c:forEach var="result" items="${allReviews}">
 			<div class="comment-user">

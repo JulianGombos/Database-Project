@@ -100,6 +100,27 @@ public class ControlServlet extends HttpServlet {
             case "/viewfavoritelist":
             	viewFavoriteList(request, response);
             	break;
+            case "/postedToday":
+            	postedToday(request, response);
+            	break;
+            case "/topReview":
+            	topReview(request, response);
+            	break;
+            case "/topTags":
+            	topTag(request, response);
+            	break; 
+            case "/excellentReviews":
+            	excellentReview(request, response);
+            	break;
+            case "/excellentVideoPage":
+            	excellentVideoPage(request, response);
+            	break; 
+            case "/mostUploads":
+            	mostPost(request, response);
+            	break; 
+            case "/topPostVideoPage":
+            	topPostVideo(request, response);
+            	break; 
             default:          	
             	userLogin(request, response);           	
                 break;
@@ -173,8 +194,8 @@ public class ControlServlet extends HttpServlet {
     private void uploadVideo(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException, ServletException {
     	
-    	User newUser = (User)session.getAttribute("user");
-    	String userName = newUser.username; 
+    	User newUser = (User)session.getAttribute("user"); 
+    	String userName = newUser.username; // grab the user name of user who logged in 
     	String url = request.getParameter("URL");
     	String title = request.getParameter("Title");
     	String description = request.getParameter("Description");
@@ -191,20 +212,22 @@ public class ControlServlet extends HttpServlet {
     	System.out.println(request.getRequestURL());
     	
     	User newUser = (User)session.getAttribute("user");
-    	String videoUrl = request.getParameter("url");
+    	String videoUrl = request.getParameter("url"); // need this url for redirecting
     	String userName = newUser.username; 
     	String review = request.getParameter("review");
     	String rating = request.getParameter("rating");
-    	YoutubeVideo newVideo = peopleDAO.getVideo(videoUrl);
+    	YoutubeVideo newVideo = peopleDAO.getVideo(videoUrl); //get youtube video based on url
     	peopleDAO.insertReview(userName, review, rating, videoUrl);
-    	boolean hasReview = peopleDAO.getHasReview(videoUrl, newUser);
+    	boolean hasReview = peopleDAO.getHasReview(videoUrl, newUser); //if user wrote review hide ability to
+    	// write review button in hidden page.
+    	// if user posted the video prevent them from writing a review to their own video
     	if(newUser.username.equals(newVideo.postUser)) {
     		hasReview = true;
     	}
-    	String endOfUrl = videoUrl.split("=")[1];
-    	List<Review> allReviews = peopleDAO.getAllReviews(videoUrl);
+    	String endOfUrl = videoUrl.split("=")[1]; // used for youtube video embedding 
+    	List<Review> allReviews = peopleDAO.getAllReviews(videoUrl); // used to display all the reviews
     	boolean isFavorite = peopleDAO.isFavorite(newUser.username, Integer.toString(newVideo.comid));
-    	request.setAttribute("hasReview", hasReview);
+    	request.setAttribute("hasReview", hasReview); // variable used in VidePage.jsp to hide review
     	request.setAttribute("isFavorite", isFavorite);
     	request.setAttribute("cutUrl", endOfUrl);
     	request.setAttribute("fullUrl", videoUrl);
@@ -304,11 +327,11 @@ public class ControlServlet extends HttpServlet {
     	RequestDispatcher dispatcher = request.getRequestDispatcher("VideoPage.jsp");
     	dispatcher.forward(request, response);
     }
-    
+    // This function is to direct them to the AddVideo.jsp page with a list of all the comedians
     private void toAddVideo(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException, ServletException {
-    	List<Comedian> comedians = peopleDAO.getAllComedians();
-    	request.setAttribute("comedians", comedians);
+    	List<Comedian> comedians = peopleDAO.getAllComedians(); // hold comedian objects in each list index
+    	request.setAttribute("comedians", comedians); // code used to hold the comedians list 
     	RequestDispatcher dispatcher = request.getRequestDispatcher("AddVideo.jsp");
     	dispatcher.forward(request, response);
     }
@@ -375,5 +398,71 @@ public class ControlServlet extends HttpServlet {
     	request.setAttribute("list", favoriteList);
     	RequestDispatcher dispatcher = request.getRequestDispatcher("ViewFavoriteList.jsp");
     	dispatcher.forward(request, response);
+    private void postedToday(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	
+    	List<Comedian> comedians = peopleDAO.postedToday(); // hold comedian objects in each list index
+    	request.setAttribute("comedians", comedians);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("Who's New.jsp");       
+        dispatcher.forward(request, response);
+    	
+    }
+    
+    private void topReview(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	
+    	List<Comedian> comedians = peopleDAO.topReview(); // hold comedian objects in each list index
+    	request.setAttribute("comedianReview", comedians);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("Who's Hot.jsp");       
+        dispatcher.forward(request, response);
+    }
+    
+    private void topTag(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	
+        ArrayList<String> matchingTags= peopleDAO.topTags();
+    	request.setAttribute("tags", matchingTags);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("Popular Tags.jsp");       
+        dispatcher.forward(request, response);
+    }
+    
+    private void excellentReview(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	
+    	// comedians with reviews that are all excellent 
+    	List<Comedian> comedians = peopleDAO.excellentReview();
+    	request.setAttribute("excellentReview", comedians);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("Who's Cool.jsp");       
+        dispatcher.forward(request, response);
+    }
+    
+    private void excellentVideoPage(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	
+    	String comidId = request.getParameter("paramvalue1");
+    	List<YoutubeVideo> comidVideos = peopleDAO.excellentComediansVideos(comidId);
+    	request.setAttribute("videos", comidVideos);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("Excellent Video Page.jsp");       
+        dispatcher.forward(request, response);
+    }
+    
+    private void mostPost(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	
+    	// user(s) with most number of youtube videos posted 
+    	List<User> topPosts = peopleDAO.topPost();
+    	request.setAttribute("topPosts", topPosts);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("Most Productive Users.jsp");       
+        dispatcher.forward(request, response);
+    }
+    
+    private void topPostVideo(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	
+    	String username = request.getParameter("paramvalue1");
+    	List<YoutubeVideo> userVideos = peopleDAO.userVideos(username);
+    	request.setAttribute("videos", userVideos);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("Top User Post Videos.jsp");       
+        dispatcher.forward(request, response);
     }
 }
