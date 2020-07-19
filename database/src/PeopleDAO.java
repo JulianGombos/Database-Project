@@ -175,28 +175,47 @@ public class PeopleDAO {
     	
     	statement = (Statement) connect.createStatement();
     	
-    	for(int i = 0; i < dropStatements.length; i++) {
-    		statement.execute(dropStatements[i]);
-    	}
-    	
-    	for(int i = 0; i < createStatements.length; i++) {
-    		statement.execute(createStatements[i]);
-    	}
-    	
-    	statement.execute(addRootUser);
-    	
-    	for(int i = 0; i < 10; i++) {
-    		statement.execute(users[i]);
-    	}
-    	
-    	for(int i = 0; i < comedians.length; i++) {
-    		statement.execute(comedians[i]);
-    	}
-    	
-    	for(int i = 0; i < videos.length; i++) {
-    		statement.execute(videos[i]);
-    		statement.execute(tags[i]);
-    	}
+    	try {
+    		for(int i = 0; i < dropStatements.length; i++) {
+        		statement.execute(dropStatements[i]);
+        	}
+    		for(int i = 0; i < createStatements.length; i++) {
+        		statement.execute(createStatements[i]);
+        	}
+        	
+        	statement.execute(addRootUser);
+        	
+        	for(int i = 0; i < 10; i++) {
+        		statement.execute(users[i]);
+        	}
+        	
+        	for(int i = 0; i < comedians.length; i++) {
+        		statement.execute(comedians[i]);
+        	}
+        	
+        	for(int i = 0; i < videos.length; i++) {
+        		statement.execute(videos[i]);
+        		statement.execute(tags[i]);
+        	}
+    	    } catch (Exception e) {
+    	      System.out.println("Something went wrong.");
+    	      for(int i = 1; i < createStatements.length; i++) {
+    	    		statement.execute(createStatements[i]);
+    	    	}
+    	    	
+    	    	for(int i = 0; i < 10; i++) {
+    	    		statement.execute(users[i]);
+    	    	}
+    	    	
+    	    	for(int i = 0; i < comedians.length; i++) {
+    	    		statement.execute(comedians[i]);
+    	    	}
+    	    	
+    	    	for(int i = 0; i < videos.length; i++) {
+    	    		statement.execute(videos[i]);
+    	    		statement.execute(tags[i]);
+    	    	}
+    	    }
     	
     	statement.close();
     	disconnect();
@@ -309,14 +328,13 @@ public class PeopleDAO {
     		String[] query = userInput.split(" ");
     		String first = query[0];
     		String second = query[1];
-    		sql= "SELECT comid FROM comedians WHERE FirstName='" + first + "' OR FirstName='" + second + "' OR LastName='" + first + "' OR LastName='" + second + "'";
+    		sql = "SELECT comid FROM comedians WHERE FirstName='" + first + "' OR FirstName='" + second + "' OR LastName='" + first + "' OR LastName='" + second + "'";
     	}else if(userInput.contains(",")){
     		String[] query = userInput.split(",");
     		sql = "SELECT url FROM youtubetags WHERE Tag LIKE '%" + query[0] + "%' ";
     		for(int i = 1; i < query.length; i++) {
-    			sql.concat("OR Tag LIKE '%" + query[i] +"%' ");
+    			sql = sql.concat("OR Tag LIKE '%" + query[i] +"%' ");
     		}
-    		
     		statement =  (Statement) connect.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
             
@@ -577,5 +595,151 @@ public class PeopleDAO {
     	preparedStatement.executeUpdate();
     	preparedStatement.close();
     	disconnect();
+    }
+    
+    public List<ComedianInfo> getVideoCount() throws SQLException{
+    	connect_func();
+    	
+    	List<ComedianInfo> comedianData = new ArrayList<ComedianInfo>();
+    	
+    	String sql = "SELECT comid, COUNT(comid) FROM youtubevideos GROUP BY comid ORDER BY COUNT(comid) DESC";
+    	statement = (Statement) connect.createStatement();
+    	ResultSet resultSet = statement.executeQuery(sql);
+    	
+    	resultSet.next();
+    	String sql2 = "SELECT * FROM comedians WHERE comid='" + resultSet.getString(1) + "'";
+    	Statement statement2 = (Statement) connect.createStatement();
+    	ResultSet resultSet2 = statement2.executeQuery(sql2);
+    	
+    	resultSet2.next();
+    	comedianData.add(new ComedianInfo(new Comedian(resultSet2.getString(2), resultSet2.getString(3)), Integer.parseInt(resultSet.getString(2))));
+    	
+    	while(resultSet.next()) {
+    		if(Integer.parseInt(resultSet.getString(2)) == comedianData.get(0).getVideoCount()) {
+    			String sql3 = "SELECT * FROM comedians WHERE comid='" + resultSet.getString(1) + "'";
+    	    	Statement statement3 = (Statement) connect.createStatement();
+    	    	ResultSet resultSet3 = statement3.executeQuery(sql3);
+    	    	resultSet3.next();
+    	    	comedianData.add(new ComedianInfo(new Comedian(resultSet3.getString(2), resultSet3.getString(3)), Integer.parseInt(resultSet.getString(2))));
+    		}
+    	}
+    	
+    	statement.close();
+    	statement2.close();
+    	resultSet.close();
+    	resultSet2.close();
+    	disconnect();
+    	return comedianData;
+    }
+    
+    public List<String> getCommonFavorites(String user1, String user2) throws SQLException{
+    	connect_func();
+    	List<String> commonFavorites = new ArrayList<String>();
+    	List<Comedian> user1FavoriteList = this.getFavoriteList(user1);
+    	List<Comedian> user2FavoriteList = this.getFavoriteList(user2);
+    	
+    	for(int i = 0; i < user1FavoriteList.size(); i++) {
+    		for(int j = 0; j < user2FavoriteList.size(); j++) {
+    			if(user2FavoriteList.get(j).getComid() == user1FavoriteList.get(i).getComid()) {
+    				commonFavorites.add(user1FavoriteList.get(i).getFirstName() + " " + user1FavoriteList.get(i).getLastName());
+    				break;
+    			}
+    		}
+    	}
+    	
+    	if(commonFavorites.size() == 0) {
+    		if(user1 == null && user2 == null) {
+    			commonFavorites.add("Users not selected");
+    		}else {
+    		commonFavorites.add("No common favorite comedians between " + user1 + " and " + user2);
+    		}
+    	}
+    	
+    	disconnect();
+    	return commonFavorites;
+    }
+    
+    public List<String> getPostiveReviewers() throws SQLException{
+    	connect_func();
+    	List<String> users = new ArrayList<String>();
+    	
+    	String sql = "SELECT Author FROM reviews WHERE Rating='G' OR Rating='E'";
+    	statement = (Statement) connect.createStatement();
+    	ResultSet resultSet = statement.executeQuery(sql);
+    	
+    	while(resultSet.next()) {
+    		users.add(resultSet.getString(1));
+    	}
+    	
+    	if(users.size() == 0) {
+    		users.add("No positive reviewers");
+    	}
+    	statement.close();
+    	resultSet.close();
+    	disconnect();
+    	return users;
+    }
+    
+    public List<String> getPoorVideos() throws SQLException{
+    	connect_func();
+    	List<String> videos = new ArrayList<String>();
+    	
+    	String sql = "SELECT Title FROM youtubevideos YT INNER JOIN reviews R ON YT.url=R.Youtubeid WHERE R.Rating='P'";
+    	statement = (Statement) connect.createStatement();
+    	ResultSet resultSet = statement.executeQuery(sql);
+    	
+    	while(resultSet.next()) {
+    		videos.add(resultSet.getString(1));
+    	}
+    	
+    	if(videos.size() == 0) {
+    		videos.add("No poor videos");
+    	}
+    	statement.close();
+    	resultSet.close();
+    	disconnect();
+    	return videos;
+    }
+    
+    public List<MultipleUsers> getSameFavorites() throws SQLException{
+    	connect_func();
+    	List<MultipleUsers> users = new ArrayList<MultipleUsers>();
+    	
+    	String sql = "SELECT DISTINCT a.Username, b.Username FROM isfavorite AS a, isfavorite AS b WHERE a.comid=b.comid AND a.Username!=b.Username";
+    	statement = (Statement) connect.createStatement();
+    	ResultSet resultSet = statement.executeQuery(sql);
+    
+    	List<MultipleUsers> tempUsers = new ArrayList<MultipleUsers>();
+    	
+    	while(resultSet.next()) {
+    		tempUsers.add(new MultipleUsers(resultSet.getString(1), resultSet.getString(2)));
+    	}
+    	
+    	for(int i = 0; i < tempUsers.size(); i++) {
+
+			List<Comedian> user1List = this.getFavoriteList(tempUsers.get(i).getUserOne());
+			List<Comedian> user2List = this.getFavoriteList(tempUsers.get(i).getUserTwo());
+			if(user1List.size() == user2List.size()) {
+				if(users.size() == 0) {
+					users.add(tempUsers.get(i));
+				}else {
+					for(int j = 0; j < users.size(); j++) {
+						if(users.get(j).getUserTwo().equals(tempUsers.get(i).getUserOne()) && users.get(j).getUserOne().equals(tempUsers.get(i).getUserTwo())) {
+							break;
+						}else {
+							users.add(tempUsers.get(i));
+							break;
+						}
+					}
+				}
+			}else {
+				continue;
+			}
+    	}
+    	
+    	statement.close();
+    	resultSet.close();
+    	disconnect();
+    	return users;
     }
 }

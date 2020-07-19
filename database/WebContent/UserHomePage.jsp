@@ -95,6 +95,33 @@
 					<td><button>Edit A User</button></td>
 					<td><button>Delete Registered User</button></td>
 				</tr>
+				<tr>
+					<td>
+						<form action="gettopcomedian" method="get">
+							<button type="submit">Top Comedian</button>
+						</form>
+					</td>
+					<td>
+						<form action="commoncomedian" method="get">
+							<button type="submit">Common Favorite Comedian</button>
+						</form>
+					</td>
+					<td>
+						<form action="postivereviewers" method="get">
+							<button type="submit">Display Positive Reviewers</button>
+						</form>
+					</td>
+					<td>
+						<form action="poorvideos" method="get">
+							<button type="submit">Display Poor Videos</button>
+						</form>
+					</td>
+					<td>
+						<form action="samefavorites" method="get">
+							<button type="submit">Display Same Favorite Lists</button>
+						</form>
+					</td>
+				</tr>
 			</table>
 		</div>
 	</body>

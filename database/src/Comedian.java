@@ -5,13 +5,18 @@ public class Comedian {
 	protected String lastName;
 	protected String birthday;
 	protected String birthPlace;
-	
+
 	public Comedian() {
 		this.comid = 0;
 		this.firstName = "null";
 		this.lastName = "null";
 		this.birthday = "null";
 		this.birthPlace = "null";
+	}
+	
+	public Comedian(String firstName, String lastName) {
+		this.firstName = firstName;
+		this.lastName = lastName;
 	}
 	
 	public Comedian(int comid, String firstName, String lastName, String birthday, String birthPlace) {
