@@ -397,7 +397,9 @@ public class ControlServlet extends HttpServlet {
     	List<Comedian> favoriteList = peopleDAO.getFavoriteList(username);
     	request.setAttribute("list", favoriteList);
     	RequestDispatcher dispatcher = request.getRequestDispatcher("ViewFavoriteList.jsp");
-    	dispatcher.forward(request, response);
+    	dispatcher.forward(request, response);	
+    }
+    
     private void postedToday(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException, ServletException {
     	

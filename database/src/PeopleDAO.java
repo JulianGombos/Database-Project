@@ -948,30 +948,30 @@ public List<User> topPost() throws SQLException{
 	return topUsers;
 	}
 
-public List<YoutubeVideo>userVideos(String userName) throws SQLException{
-	connect_func();
-	
-	List<YoutubeVideo> videoData = new ArrayList<YoutubeVideo>();
-	String URL;
-	String endOfUrl; 
-	int i = 0; 
-	String sql = "SELECT * FROM user U, youtubevideos Y WHERE U.Username = Y.PostUser AND Y.PostUser ='"+ userName + "'";
-	
-	statement =  (Statement) connect.createStatement();
-    ResultSet resultSet = statement.executeQuery(sql);
-	while(resultSet.next()) {
-		videoData.add(new YoutubeVideo(resultSet.getString("url"), resultSet.getString("Title"), resultSet.getString("VideoDescription"),
-				Integer.parseInt(resultSet.getString("comid")), resultSet.getString("PostUser"), resultSet.getDate("PostDate")));
-		URL = videoData.get(i).getUrl();
-		endOfUrl = URL.split("=")[1];
-		videoData.get(i).setUrl(endOfUrl);
-		i++;
-	}
-    resultSet.close();
-    statement.close();
-    disconnect();
-    
-    return videoData;
+	public List<YoutubeVideo>userVideos(String userName) throws SQLException{
+		connect_func();
+		
+		List<YoutubeVideo> videoData = new ArrayList<YoutubeVideo>();
+		String URL;
+		String endOfUrl; 
+		int i = 0; 
+		String sql = "SELECT * FROM user U, youtubevideos Y WHERE U.Username = Y.PostUser AND Y.PostUser ='"+ userName + "'";
+		
+		statement =  (Statement) connect.createStatement();
+	    ResultSet resultSet = statement.executeQuery(sql);
+		while(resultSet.next()) {
+			videoData.add(new YoutubeVideo(resultSet.getString("url"), resultSet.getString("Title"), resultSet.getString("VideoDescription"),
+					Integer.parseInt(resultSet.getString("comid")), resultSet.getString("PostUser"), resultSet.getDate("PostDate")));
+			URL = videoData.get(i).getUrl();
+			endOfUrl = URL.split("=")[1];
+			videoData.get(i).setUrl(endOfUrl);
+			i++;
+		}
+	    resultSet.close();
+	    statement.close();
+	    disconnect();
+	    
+	    return videoData;
 	
 	}
 
