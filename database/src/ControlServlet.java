@@ -82,6 +82,24 @@ public class ControlServlet extends HttpServlet {
             case "/addcomedian":
             	addComedian(request, response);
             	break;
+            case "/gettopcomedian":
+            	topComedian(request, response);
+            	break;
+            case "/commoncomedian":
+            	commonFavoriteComedian(request, response);
+            	break;
+            case "/postivereviewers":
+            	postiveReviewers(request, response);
+            	break;
+            case "/poorvideos":
+            	poorVideos(request, response);
+            	break;
+            case "/samefavorites":
+            	sameFavorites(request, response);
+            	break;
+            case "/viewfavoritelist":
+            	viewFavoriteList(request, response);
+            	break;
             case "/postedToday":
             	postedToday(request, response);
             	break;
@@ -324,6 +342,62 @@ public class ControlServlet extends HttpServlet {
     			request.getParameter("lastName"), request.getParameter("birthday"), request.getParameter("birthPlace"));
     	peopleDAO.insertComedian(newComedian);
     	response.sendRedirect("AddComedian.jsp");
+    }
+    
+    private void topComedian(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	List<ComedianInfo> comedianData = peopleDAO.getVideoCount();
+    	request.setAttribute("comedianInfo", comedianData);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("TopComedian.jsp");
+    	dispatcher.forward(request, response);
+    }
+    
+    private void commonFavoriteComedian(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	List<User> userList = peopleDAO.getAllUsers();
+    	request.setAttribute("users", userList);
+    	
+    	String user1 = request.getParameter("username1");
+    	String user2 = request.getParameter("username2");
+    	
+    	List<String> commonFavorites = peopleDAO.getCommonFavorites(user1, user2);
+    	request.setAttribute("commonList", commonFavorites);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("CommonFavoriteComedian.jsp");
+    	dispatcher.forward(request, response);
+    }
+    
+    private void postiveReviewers(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	List<String> users = peopleDAO.getPostiveReviewers();
+    	request.setAttribute("users", users);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("PositiveReviewers.jsp");
+    	dispatcher.forward(request, response);
+    }
+    
+    private void poorVideos(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	List<String> videos = peopleDAO.getPoorVideos();
+    	request.setAttribute("videos", videos);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("PoorVideos.jsp");
+    	dispatcher.forward(request, response);
+    }
+    
+    private void sameFavorites(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	List<MultipleUsers> users = peopleDAO.getSameFavorites();
+    	
+    	request.setAttribute("users", users);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("SameFavorites.jsp");
+    	dispatcher.forward(request, response);
+    }
+    
+    private void viewFavoriteList(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+    	String username = request.getParameter("username");
+    	List<Comedian> favoriteList = peopleDAO.getFavoriteList(username);
+    	request.setAttribute("list", favoriteList);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("ViewFavoriteList.jsp");
+    	dispatcher.forward(request, response);	
     }
     
     private void postedToday(HttpServletRequest request, HttpServletResponse response)
