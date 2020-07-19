@@ -15,7 +15,10 @@ import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @WebServlet("/PeopleDAO")
 public class PeopleDAO {     
@@ -229,6 +232,7 @@ public class PeopleDAO {
         disconnect();        
         return listOfUsers;
     }
+    // Function to insert video into MYSQL database.
     public void insertVideo(String userName, String link, String videoTitle, String videoDescription, String videoTags, String comid) throws SQLException{
     	connect_func();
     	
@@ -237,7 +241,6 @@ public class PeopleDAO {
     	long millis=System.currentTimeMillis();  
     	java.sql.Date date=new java.sql.Date(millis);  
     	String dateString=date.toString(); 
-    	System.out.println(dateString);
     	
     	// This line of code is to see if the url (String link) is already in the youtubevideos table
     	String urlCheck = "SELECT COUNT(*) FROM youtubevideos WHERE URL ='"+ link + "'";
@@ -245,7 +248,6 @@ public class PeopleDAO {
     	ResultSet urlExist = statement.executeQuery(urlCheck);
     	if (urlExist.next()) {
     		int numUrl = urlExist.getInt(1);
-        	System.out.println("Number of url: " + numUrl);
         	if (numUrl > 0) {
         		System.out.println("The URL is already in the table cannot add video");
         		return;
@@ -359,15 +361,12 @@ public class PeopleDAO {
         disconnect();
     	return searchResults;
     }
-    
     public List<Comedian> getAllComediansNotInFavorite(String givenUsername) throws SQLException{
     	List<Comedian> allComedians = new ArrayList<Comedian>();
     	connect_func();
-    	
     	String sql = "SELECT * FROM comedians WHERE comid NOT IN (SELECT comid FROM isfavorite WHERE Username='" + givenUsername +"')";
     	statement =  (Statement) connect.createStatement();
         ResultSet comedianResultSet = statement.executeQuery(sql);
-        
         while(comedianResultSet.next()) {
         	allComedians.add(new Comedian(Integer.parseInt(comedianResultSet.getString("comid")), comedianResultSet.getString("FirstName"), comedianResultSet.getString("LastName"), 
         			comedianResultSet.getString("Birthday"), comedianResultSet.getString("BirthPlace")));
@@ -428,7 +427,7 @@ public class PeopleDAO {
         preparedStatement.close();
     	disconnect();
     }
-    
+    // add review into the database
     public void insertReview(String userName, String remark, String rating, String url) throws SQLException{
     	connect_func();
     	
@@ -446,7 +445,7 @@ public class PeopleDAO {
     	disconnect();
 
     }
-    
+    // function to get all the reviews
     public List<Review> getAllReviews(String url) throws SQLException{
     	List<Review> allReviews = new ArrayList<Review>();
     	
@@ -465,7 +464,7 @@ public class PeopleDAO {
         disconnect();
         return allReviews;
     }
-    
+    // This function is to check if user posted a review for video return true if did and false if did not
     public boolean getHasReview(String url, User user) throws SQLException{
     	connect_func();
     	
@@ -505,7 +504,7 @@ public class PeopleDAO {
         statement.close();
         disconnect();
     }
-    
+    // Function to get the YouTube video based on the url in video page
     public YoutubeVideo getVideo(String url) throws SQLException {
     	connect_func();
     	
@@ -543,8 +542,9 @@ public class PeopleDAO {
             return false;
     	}
     }
-    
+    // Function to get all the comedians when uploading a video to choose which comedian video is for
     public List<Comedian> getAllComedians() throws SQLException{
+    	//Create a list of type Comedian class to hold all the comedians in each index 
     	List<Comedian> comedians = new ArrayList<Comedian>();
     	connect_func();
     	
@@ -578,4 +578,238 @@ public class PeopleDAO {
     	preparedStatement.close();
     	disconnect();
     }
+    
+ // Function to get all the comedians videos that were posted today
+    public List<Comedian> postedToday() throws SQLException{
+    	
+    	// This line of code is to get the current date and convert object to string 
+    	long millis=System.currentTimeMillis();  
+    	java.sql.Date date=new java.sql.Date(millis);  
+    	String dateString=date.toString(); 
+    	
+    	//Create a list of type Comedian class to hold all the comedians in each index 
+    	List<Comedian> comedians = new ArrayList<Comedian>();
+    	connect_func();
+    	
+    	String sql = "SELECT * FROM comedians C WHERE C.comid NOT IN (SELECT Y.comid FROM youtubevideos Y WHERE PostDate != '"+ dateString + "')";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+    	while(resultSet.next()) {
+    		comedians.add(new Comedian(Integer.parseInt(resultSet.getString("comid")), resultSet.getString("FirstName"), resultSet.getString("LastName"), 
+    				resultSet.getString("Birthday"), resultSet.getString("BirthPlace")));
+    	}
+        resultSet.close();
+    	statement.close();
+    	disconnect();
+    	return comedians;
+    }
+    
+ // Function to get top 3 comedians that were reviewed the most
+    public List<Comedian> topReview() throws SQLException{
+    	
+    	
+    	//Create a list of type Comedian class to hold all the comedians in each index 
+    	List<Comedian> comedians = new ArrayList<Comedian>();
+    	connect_func();
+    	
+    	String sql = "SELECT *\r\n" + 
+    			"FROM comedians K,\r\n" + 
+    			"	(SELECT C.comid, COUNT(*) as numReviews\r\n" + 
+    			"	FROM reviews R, youtubevideos Y, comedians C\r\n" + 
+    			"	WHERE R.Youtubeid = Y.url AND Y.comid = C.comid\r\n" + 
+    			"	GROUP BY C.comid\r\n" + 
+    			"	ORDER BY numReviews DESC) AS comedianReviews\r\n" + 
+    			"WHERE K.comid = comedianReviews.comid \r\n" + 
+    			"ORDER BY numReviews DESC\r\n" + 
+    			"LIMIT 3;";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+    	while(resultSet.next()) {
+    		comedians.add(new Comedian(Integer.parseInt(resultSet.getString("comid")), resultSet.getString("FirstName"), resultSet.getString("LastName"), 
+    				resultSet.getString("Birthday"), resultSet.getString("BirthPlace")));
+    	}
+        resultSet.close();
+    	statement.close();
+    	disconnect();
+    	return comedians;
+    }
+
+// function to get the tags used by every user 
+public ArrayList<String> topTags() throws SQLException{
+		connect_func();
+		
+    	// variable to hold MYSQL users tag
+    	List<String[]> tags = new ArrayList<String[]>();
+    	
+    	// variable to hold , and " " separated tags
+    	String[] arrOfTags;
+    	
+    	
+    	String sql = "SELECT GROUP_CONCAT(T.Tag) as \"Tags\"\r\n" + 
+    			"FROM youtubetags T, youtubevideos V, user U\r\n" + 
+    			"WHERE T.url = V.url AND V.PostUser = U.Username\r\n" + 
+    			"GROUP BY U.Username\r\n" + 
+    			"ORDER BY U.Username;";
+    	statement =  (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+    	while(resultSet.next()) {
+    		
+    		String listOfTags = resultSet.getString("Tags");
+            arrOfTags = listOfTags.split("[ ,]+", -2); 
+    		tags.add(arrOfTags); // each tag element is an [array] of tags
+
+    	}
+    	// create hash map that holds all elements in our first users tags
+        Set<String> tagChecker = new HashSet<>(Arrays.asList(tags.get(0)));
+        // Initialize variable to hold matching tags
+        ArrayList<String> matchingElements=new ArrayList<String>();
+        for(int j = 1; j < tags.size(); j++) {
+        	
+        	// clear the matchingElements array, first loop this code is redundant.
+        	matchingElements.clear();
+	        for (String str : tags.get(j)) {
+	            if (tagChecker.contains(str)) {
+	            	// store matching str in a matchingElements
+	            	matchingElements.add(str); 
+	            }
+	          
+	        }
+	        // reached the end of the inner for loop so we clear our hash table and put 
+	        // in only those tags that were the same for user 1 and user 2 
+	        // then we check the same tags that both user 1 and 2 had with the next user
+	        // clear and put the ones that are same with user 1, 2, and 3, and do it
+	        // until all users have been iterated through (tags.get(i))
+	        tagChecker.clear();
+	        tagChecker.addAll(matchingElements); 
+	        
+            	
+        }
+        resultSet.close();
+    	statement.close();
+    	disconnect();
+    	return matchingElements;
+    }
+
+//Function to get comedians whose reviews are ALL excellent
+public List<Comedian> excellentReview() throws SQLException{
+	connect_func();
+	
+	List<Comedian> comedians = new ArrayList<Comedian>();
+	
+	
+	String sql = "SELECT *\r\n" + 
+			"FROM comedians C,\r\n" + 
+			"(\r\n" + 
+			"	SELECT C.FirstName, Group_concat(R.Rating) as Rating\r\n" + 
+			"	FROM reviews R, youtubevideos Y, comedians C\r\n" + 
+			"	WHERE R.Youtubeid = Y.url AND Y.comid = C.comid\r\n" + 
+			"	GROUP BY C.FirstName) as excellent\r\n" + 
+			"WHERE excellent.Rating NOT LIKE '%P%' AND excellent.Rating NOT LIKE '%F%' AND excellent.Rating NOT LIKE '%G%' \r\n" + 
+			"AND C.FirstName = excellent.FirstName;";
+	statement =  (Statement) connect.createStatement();
+    ResultSet resultSet = statement.executeQuery(sql);
+	while(resultSet.next()) {
+		comedians.add(new Comedian(Integer.parseInt(resultSet.getString("comid")), resultSet.getString("FirstName"), resultSet.getString("LastName"), 
+				resultSet.getString("Birthday"), resultSet.getString("BirthPlace")));
+	}
+    resultSet.close();
+	statement.close();
+	disconnect();
+	return comedians;
+	}
+
+
+public List<YoutubeVideo>excellentComediansVideos(String comidId) throws SQLException{
+	connect_func();
+	
+	List<YoutubeVideo> videoData = new ArrayList<YoutubeVideo>();
+	String URL;
+	String endOfUrl; 
+	int i = 0; 
+	String sql = "SELECT * FROM comedians C, youtubevideos Y WHERE C.comid = Y.comid AND Y.comid ='"+ comidId + "'"; 
+	
+	
+
+	statement =  (Statement) connect.createStatement();
+    ResultSet resultSet = statement.executeQuery(sql);
+	while(resultSet.next()) {
+		videoData.add(new YoutubeVideo(resultSet.getString("url"), resultSet.getString("Title"), resultSet.getString("VideoDescription"),
+				Integer.parseInt(resultSet.getString("comid")), resultSet.getString("PostUser"), resultSet.getDate("PostDate")));
+		URL = videoData.get(i).getUrl();
+		endOfUrl = URL.split("=")[1];
+		videoData.get(i).setUrl(endOfUrl);
+		i++;
+	}
+    resultSet.close();
+    statement.close();
+    disconnect();
+    
+    return videoData;
+	
+	}
+public List<User> topPost() throws SQLException{
+	connect_func();
+	
+	List<User> topUsers = new ArrayList<User>();
+	
+	
+	String sql = "SELECT *\r\n" + 
+			"FROM\r\n" + 
+			"(\r\n" + 
+			"SELECT totalUploads.Username, totalUploads.numOfVideos\r\n" + 
+			"FROM\r\n" + 
+			"	(\r\n" + 
+			"	SELECT U.Username, COUNT(*) AS numOfVideos \r\n" + 
+			"	FROM user U, youtubevideos Y \r\n" + 
+			"	WHERE U.Username = Y.PostUser\r\n" + 
+			"	GROUP BY U.Username\r\n" + 
+			"	ORDER BY numOfVideos DESC) as totalUploads\r\n" + 
+			"WHERE totalUploads.numOfVideos = (SELECT MAX(numVideos)\r\n" + 
+			"FROM\r\n" + 
+			"	(\r\n" + 
+			"	SELECT COUNT(U.Username) as numVideos\r\n" + 
+			"	FROM user U, youtubevideos Y \r\n" + 
+			"	WHERE U.Username = Y.PostUser\r\n" + 
+			"	GROUP BY U.Username) as temp)) as temp2, user P\r\n" + 
+			"WHERE P.Username = temp2.Username;";
+	statement =  (Statement) connect.createStatement();
+    ResultSet resultSet = statement.executeQuery(sql);
+	while(resultSet.next()) {
+		topUsers.add(new User(resultSet.getString("Username"), resultSet.getString("Password"), resultSet.getString("FirstName"), 
+				resultSet.getString("LastName"), Integer.parseInt(resultSet.getString("Age"))));
+	}
+	
+    resultSet.close();
+	statement.close();
+	disconnect();
+	return topUsers;
+	}
+
+public List<YoutubeVideo>userVideos(String userName) throws SQLException{
+	connect_func();
+	
+	List<YoutubeVideo> videoData = new ArrayList<YoutubeVideo>();
+	String URL;
+	String endOfUrl; 
+	int i = 0; 
+	String sql = "SELECT * FROM user U, youtubevideos Y WHERE U.Username = Y.PostUser AND Y.PostUser ='"+ userName + "'";
+	
+	statement =  (Statement) connect.createStatement();
+    ResultSet resultSet = statement.executeQuery(sql);
+	while(resultSet.next()) {
+		videoData.add(new YoutubeVideo(resultSet.getString("url"), resultSet.getString("Title"), resultSet.getString("VideoDescription"),
+				Integer.parseInt(resultSet.getString("comid")), resultSet.getString("PostUser"), resultSet.getDate("PostDate")));
+		URL = videoData.get(i).getUrl();
+		endOfUrl = URL.split("=")[1];
+		videoData.get(i).setUrl(endOfUrl);
+		i++;
+	}
+    resultSet.close();
+    statement.close();
+    disconnect();
+    
+    return videoData;
+	
+	}
+
 }
