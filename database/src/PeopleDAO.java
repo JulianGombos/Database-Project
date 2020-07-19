@@ -663,7 +663,7 @@ public class PeopleDAO {
     	connect_func();
     	List<String> users = new ArrayList<String>();
     	
-    	String sql = "SELECT Author FROM reviews WHERE Rating='G' OR Rating='E'";
+    	String sql = "SELECT DISTINCT Author FROM reviews WHERE Rating='G' OR Rating='E'";
     	statement = (Statement) connect.createStatement();
     	ResultSet resultSet = statement.executeQuery(sql);
     	
