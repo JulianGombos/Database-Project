@@ -27,6 +27,7 @@
 				</div>
 			</div>
 		</div>
+		<!-- Call upload function -->
 	<form action="upload" method="POST">
 		<div align="center" style="padding-top: 20px">
 			<label>URL</label>
@@ -52,10 +53,11 @@
 		</div>
 		
 		<br>
+		<!--  Extract all comedians from variable using loop-->
 		<div align="center">
 			<label for="comedians">Choose a Comedian: </label>
 			<select name="comid" id="comid">
-			<c:forEach var="result" items="${comedians}">
+			<c:forEach var="result" items="${comedians}"> <!-- Store comedians variable in result variable -->
 				<option value="<c:out value="${result.comid}" />"><c:out value="${result.firstName} ${result.lastName }" /></option>
 			</c:forEach>
 			</select>
